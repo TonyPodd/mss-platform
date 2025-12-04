@@ -87,7 +87,11 @@ export default function NewsPage() {
             {news.map((item) => (
               <tr key={item.id}>
                 <td>{item.title}</td>
-                <td>{new Date(item.publishedAt).toLocaleDateString('ru-RU')}</td>
+                <td>
+                  {item.publishedAt
+                    ? new Date(item.publishedAt).toLocaleDateString('ru-RU')
+                    : '-'}
+                </td>
                 <td>
                   <span
                     className={`${styles.badge} ${

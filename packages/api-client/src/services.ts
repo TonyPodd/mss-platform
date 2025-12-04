@@ -218,13 +218,15 @@ export class UploadService {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch(`${this.client['baseURL']}/uploads`, {
+    const response = await fetch(`${this.client.baseURL}/uploads`, {
       method: 'POST',
       body: formData,
     });
 
     if (!response.ok) {
-      throw new Error('Не удалось загрузить файл');
+      const errorText = await response.text();
+      console.error('Upload error:', errorText);
+      throw new Error(`Не удалось загрузить файл: ${response.status} ${response.statusText}`);
     }
 
     return response.json();
