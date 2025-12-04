@@ -9,8 +9,10 @@ export interface ApiClientConfig {
 export class ApiClient {
   private client: AxiosInstance;
   private accessToken: string | null = null;
+  public baseURL: string;
 
   constructor(config: ApiClientConfig) {
+    this.baseURL = config.baseURL;
     this.client = axios.create({
       baseURL: config.baseURL,
       timeout: config.timeout || 30000,

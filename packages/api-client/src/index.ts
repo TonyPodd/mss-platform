@@ -8,6 +8,7 @@ import {
   OrdersService,
   NewsService,
   AuthService,
+  UploadService,
 } from './services';
 
 export * from './client';
@@ -22,6 +23,7 @@ export class MssApiClient {
   public orders: OrdersService;
   public news: NewsService;
   public auth: AuthService;
+  public upload: UploadService;
 
   private client: ApiClient;
 
@@ -37,6 +39,7 @@ export class MssApiClient {
     this.orders = new OrdersService(this.client);
     this.news = new NewsService(this.client);
     this.auth = new AuthService(this.client);
+    this.upload = new UploadService(this.client);
   }
 
   setToken(token: string) {

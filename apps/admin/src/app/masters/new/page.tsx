@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '../../../lib/api';
+import ImageUpload from '../../../components/ImageUpload';
 import styles from './master-form.module.css';
 
 export default function NewMasterPage() {
@@ -110,18 +111,11 @@ export default function NewMasterPage() {
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="avatarUrl">URL аватара</label>
-          <input
-            type="url"
-            id="avatarUrl"
-            name="avatarUrl"
-            value={formData.avatarUrl}
-            onChange={handleChange}
-            placeholder="https://example.com/avatar.jpg"
-            className={styles.input}
-          />
-        </div>
+        <ImageUpload
+          currentImageUrl={formData.avatarUrl}
+          onImageChange={(url) => setFormData((prev) => ({ ...prev, avatarUrl: url }))}
+          label="Аватар"
+        />
 
         <div className={styles.formRow}>
           <div className={styles.formGroup}>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '../../../lib/api';
+import ImageUpload from '../../../components/ImageUpload';
 import styles from './news-form.module.css';
 
 export default function NewNewsPage() {
@@ -88,18 +89,11 @@ export default function NewNewsPage() {
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="imageUrl">URL изображения</label>
-          <input
-            type="url"
-            id="imageUrl"
-            name="imageUrl"
-            value={formData.imageUrl}
-            onChange={handleChange}
-            placeholder="https://example.com/image.jpg"
-            className={styles.input}
-          />
-        </div>
+        <ImageUpload
+          currentImageUrl={formData.imageUrl}
+          onImageChange={(url) => setFormData((prev) => ({ ...prev, imageUrl: url }))}
+          label="Изображение новости"
+        />
 
         <div className={styles.checkboxGroup}>
           <label className={styles.checkboxLabel}>

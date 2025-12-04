@@ -73,6 +73,7 @@ export interface Master {
   instagramLink?: string;
   telegramLink?: string;
   specializations: string[];
+  rating?: number;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -158,4 +159,16 @@ export interface News {
   publishedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
+}
+
+// Загруженный файл
+export interface Upload {
+  id: string;
+  originalName: string;
+  filename: string;
+  mimetype: string;
+  size: number;
+  path: string;
+  url: string;
+  createdAt: Date;
 }

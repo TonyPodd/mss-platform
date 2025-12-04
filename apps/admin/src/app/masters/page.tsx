@@ -69,8 +69,8 @@ export default function MastersPage() {
               <tr key={master.id}>
                 <td>
                   <div className={styles.masterInfo}>
-                    {master.avatar && (
-                      <img src={master.avatar} alt={master.name} className={styles.avatar} />
+                    {master.avatarUrl && (
+                      <img src={master.avatarUrl} alt={master.name} className={styles.avatar} />
                     )}
                     <span>{master.name}</span>
                   </div>
@@ -86,7 +86,7 @@ export default function MastersPage() {
                 </td>
                 <td>
                   <div className={styles.rating}>
-                    ⭐ {master.rating.toFixed(1)}
+                    ⭐ {master.rating ? master.rating.toFixed(1) : '0.0'}
                   </div>
                 </td>
                 <td>

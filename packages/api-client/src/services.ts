@@ -210,3 +210,27 @@ export class AuthService {
     return this.client.post(API_ROUTES.AUTH.LOGOUT);
   }
 }
+
+export class UploadService {
+  constructor(private client: ApiClient) {}
+
+  async uploadFile(file: File): Promise<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${this.client['baseURL']}/uploads`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Не удалось загрузить файл');
+    }
+
+    return response.json();
+  }
+
+  async deleteFile(id: string): Promise<void> {
+    return this.client.delete(`/uploads/${id}`);
+  }
+}

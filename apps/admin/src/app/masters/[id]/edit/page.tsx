@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { apiClient } from '../../../../lib/api';
 import { Master } from '@mss/shared';
+import ImageUpload from '../../../../components/ImageUpload';
 import styles from '../../new/master-form.module.css';
 
 export default function EditMasterPage() {
@@ -144,18 +145,11 @@ export default function EditMasterPage() {
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="avatarUrl">URL аватара</label>
-          <input
-            type="url"
-            id="avatarUrl"
-            name="avatarUrl"
-            value={formData.avatarUrl}
-            onChange={handleChange}
-            placeholder="https://example.com/avatar.jpg"
-            className={styles.input}
-          />
-        </div>
+        <ImageUpload
+          currentImageUrl={formData.avatarUrl}
+          onImageChange={(url) => setFormData((prev) => ({ ...prev, avatarUrl: url }))}
+          label="Аватар"
+        />
 
         <div className={styles.formRow}>
           <div className={styles.formGroup}>

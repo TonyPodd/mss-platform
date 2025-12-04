@@ -218,3 +218,17 @@ model News {
 
   @@map("news")
 }
+
+// Загруженные файлы
+model Upload {
+  id           String   @id @default(uuid())
+  originalName String
+  filename     String
+  mimetype     String
+  size         Int
+  path         String
+  url          String
+  createdAt    DateTime @default(now())
+
+  @@map("uploads")
+}
