@@ -119,7 +119,7 @@ export default function EventsPage() {
                         Опубликовать
                       </button>
                     )}
-                    <Link href={`/events/${event.id}`} className={styles.editBtn}>
+                    <Link href={`/events/${event.id}/edit`} className={styles.editBtn}>
                       Редактировать
                     </Link>
                     <button onClick={() => handleDelete(event.id)} className={styles.deleteBtn}>

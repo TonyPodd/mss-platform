@@ -36,18 +36,23 @@ export default function ImageUpload({ currentImageUrl, onImageChange, label }: I
     try {
       setUploading(true);
 
+      console.log('Uploading file:', file.name, file.size, file.type);
+
       // Загружаем файл
       const upload = await apiClient.upload.uploadFile(file);
+
+      console.log('Upload response:', upload);
 
       // Обновляем preview и уведомляем родителя
       const fullUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}${
         upload.url
       }`;
+      console.log('Full URL:', fullUrl);
       setPreviewUrl(fullUrl);
       onImageChange(fullUrl);
     } catch (error) {
       console.error('Ошибка загрузки файла:', error);
-      alert('Не удалось загрузить файл');
+      alert(`Не удалось загрузить файл: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
     } finally {
       setUploading(false);
     }
