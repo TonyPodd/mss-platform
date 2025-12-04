@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import styles from './UpcomingEvents.module.css';
 import { Event, EVENT_COLORS } from '@mss/shared';
+import { getImageUrl } from '../lib/utils';
 
 interface UpcomingEventsProps {
   events: Event[];
@@ -43,7 +44,7 @@ export default function UpcomingEvents({ events }: UpcomingEventsProps) {
             {event.imageUrl && (
               <div
                 className={styles.cardImage}
-                style={{ backgroundImage: `url(${event.imageUrl})` }}
+                style={{ backgroundImage: `url(${getImageUrl(event.imageUrl)})` }}
               />
             )}
 

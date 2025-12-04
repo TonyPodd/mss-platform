@@ -6,6 +6,7 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import styles from './NewsSlider.module.css';
 import { News } from '@mss/shared';
+import { getImageUrl } from '../lib/utils';
 
 interface NewsSliderProps {
   news: News[];
@@ -37,7 +38,7 @@ export default function NewsSlider({ news }: NewsSliderProps) {
               {item.imageUrl && (
                 <div
                   className={styles.slideImage}
-                  style={{ backgroundImage: `url(${item.imageUrl})` }}
+                  style={{ backgroundImage: `url(${getImageUrl(item.imageUrl)})` }}
                 />
               )}
               <div className={styles.slideContent}>
