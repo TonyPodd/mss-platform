@@ -50,6 +50,26 @@ export class EventsService {
       params: { page, limit },
     });
   }
+
+  async create(data: any): Promise<Event> {
+    return this.client.post<Event>(API_ROUTES.EVENTS.LIST, data);
+  }
+
+  async update(id: string, data: any): Promise<Event> {
+    return this.client.patch<Event>(API_ROUTES.EVENTS.BY_ID(id), data);
+  }
+
+  async delete(id: string): Promise<void> {
+    return this.client.delete<void>(API_ROUTES.EVENTS.BY_ID(id));
+  }
+
+  async publish(id: string): Promise<Event> {
+    return this.client.post<Event>(`/events/${id}/publish`);
+  }
+
+  async cancel(id: string): Promise<Event> {
+    return this.client.post<Event>(`/events/${id}/cancel`);
+  }
 }
 
 export class BookingsService {
@@ -77,6 +97,18 @@ export class MastersService {
 
   async getById(id: string): Promise<Master> {
     return this.client.get<Master>(API_ROUTES.MASTERS.BY_ID(id));
+  }
+
+  async create(data: any): Promise<Master> {
+    return this.client.post<Master>(API_ROUTES.MASTERS.LIST, data);
+  }
+
+  async update(id: string, data: any): Promise<Master> {
+    return this.client.patch<Master>(API_ROUTES.MASTERS.BY_ID(id), data);
+  }
+
+  async delete(id: string): Promise<void> {
+    return this.client.delete<void>(API_ROUTES.MASTERS.BY_ID(id));
   }
 }
 
@@ -125,12 +157,36 @@ export class OrdersService {
 export class NewsService {
   constructor(private client: ApiClient) {}
 
+  async getAll(): Promise<News[]> {
+    return this.client.get<News[]>(API_ROUTES.NEWS.LIST);
+  }
+
   async getPublished(): Promise<News[]> {
     return this.client.get<News[]>(API_ROUTES.NEWS.PUBLISHED);
   }
 
   async getById(id: string): Promise<News> {
     return this.client.get<News>(API_ROUTES.NEWS.BY_ID(id));
+  }
+
+  async create(data: any): Promise<News> {
+    return this.client.post<News>(API_ROUTES.NEWS.LIST, data);
+  }
+
+  async update(id: string, data: any): Promise<News> {
+    return this.client.patch<News>(API_ROUTES.NEWS.BY_ID(id), data);
+  }
+
+  async delete(id: string): Promise<void> {
+    return this.client.delete<void>(API_ROUTES.NEWS.BY_ID(id));
+  }
+
+  async publish(id: string): Promise<News> {
+    return this.client.post<News>(`/news/${id}/publish`);
+  }
+
+  async unpublish(id: string): Promise<News> {
+    return this.client.post<News>(`/news/${id}/unpublish`);
   }
 }
 
