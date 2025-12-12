@@ -66,7 +66,7 @@ export class GroupSessionsService {
   }
 
   async getUpcomingSessions(groupId: string) {
-    return this.prisma.groupSession.findMany({
+    const sessions = await this.prisma.groupSession.findMany({
       where: {
         groupId,
         date: {
@@ -88,6 +88,20 @@ export class GroupSessionsService {
         bookings: true,
       },
     });
+
+    // Получаем количество активных зачисленных участников для этого направления
+    const activeEnrollmentsCount = await this.prisma.groupEnrollment.count({
+      where: {
+        groupId,
+        status: 'ACTIVE',
+      },
+    });
+
+    // Добавляем реальное количество участников к каждому занятию
+    return sessions.map(session => ({
+      ...session,
+      currentParticipants: activeEnrollmentsCount,
+    }));
   }
 
   async getSessionById(id: string) {
