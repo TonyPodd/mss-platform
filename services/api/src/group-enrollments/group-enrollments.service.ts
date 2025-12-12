@@ -34,35 +34,27 @@ export class GroupEnrollmentsService {
       throw new BadRequestException('Вы уже записаны в это направление');
     }
 
-    // Проверяем абонемент если указан
-    if (dto.subscriptionId) {
-      const subscription = await this.prisma.subscription.findUnique({
-        where: { id: dto.subscriptionId },
-      });
+    // Проверяем наличие активного абонемента у пользователя
+    const activeSubscription = await this.prisma.subscription.findFirst({
+      where: {
+        userId,
+        status: 'ACTIVE',
+        remainingBalance: {
+          gt: 0,
+        },
+      },
+    });
 
-      if (!subscription) {
-        throw new NotFoundException('Абонемент не найден');
-      }
-
-      if (subscription.userId !== userId) {
-        throw new BadRequestException('Это не ваш абонемент');
-      }
-
-      if (subscription.status !== 'ACTIVE') {
-        throw new BadRequestException('Абонемент неактивен');
-      }
-
-      if (subscription.remainingBalance <= 0) {
-        throw new BadRequestException('Недостаточно средств на абонементе');
-      }
+    if (!activeSubscription) {
+      throw new BadRequestException('Для записи на направление требуется активный абонемент с положительным балансом');
     }
 
-    // Создаем зачисление
+    // Создаем зачисление (деньги не списываем, они будут списываться за каждое занятие)
     const enrollment = await this.prisma.groupEnrollment.create({
       data: {
         userId,
         groupId: dto.groupId,
-        subscriptionId: dto.subscriptionId,
+        subscriptionId: activeSubscription.id,
         participants: dto.participants as any,
         contactEmail: dto.contactEmail,
         notes: dto.notes,
@@ -71,6 +63,7 @@ export class GroupEnrollmentsService {
       include: {
         user: true,
         subscription: true,
+        group: true,
       },
     });
 

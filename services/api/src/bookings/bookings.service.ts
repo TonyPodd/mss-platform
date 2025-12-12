@@ -374,4 +374,69 @@ export class BookingsService {
   async cancel(id: string) {
     return this.updateStatus(id, 'CANCELLED');
   }
+
+  async getUpcomingUserBookings(userId: string) {
+    const now = new Date();
+
+    return this.prisma.booking.findMany({
+      where: {
+        userId,
+        status: {
+          in: ['PENDING', 'CONFIRMED'],
+        },
+        OR: [
+          {
+            eventId: {
+              not: null,
+            },
+            event: {
+              startDate: {
+                gte: now,
+              },
+            },
+          },
+          {
+            groupSessionId: {
+              not: null,
+            },
+            groupSession: {
+              date: {
+                gte: now,
+              },
+            },
+          },
+        ],
+      },
+      include: {
+        event: {
+          select: {
+            title: true,
+            startDate: true,
+            type: true,
+          },
+        },
+        groupSession: {
+          include: {
+            group: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: [
+        {
+          event: {
+            startDate: 'asc',
+          },
+        },
+        {
+          groupSession: {
+            date: 'asc',
+          },
+        },
+      ],
+    });
+  }
 }

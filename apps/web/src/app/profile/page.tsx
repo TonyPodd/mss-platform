@@ -13,6 +13,7 @@ export default function ProfilePage() {
   const { user, isAuthenticated, isLoading, refreshUser, activeSubscription } = useAuth();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([]);
   const [enrollments, setEnrollments] = useState<GroupEnrollment[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -23,7 +24,7 @@ export default function ProfilePage() {
     age: '',
   });
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'subscriptions' | 'bookings' | 'enrollments'>('subscriptions');
+  const [activeTab, setActiveTab] = useState<'subscriptions' | 'bookings' | 'upcoming' | 'enrollments'>('upcoming');
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [subscriptionTypes, setSubscriptionTypes] = useState<SubscriptionType[]>([]);
   const [purchasing, setPurchasing] = useState<string | null>(null);
@@ -53,13 +54,15 @@ export default function ProfilePage() {
 
   const loadData = async () => {
     try {
-      const [subs, bookingHistory, myEnrollments] = await Promise.all([
+      const [subs, bookingHistory, upcoming, myEnrollments] = await Promise.all([
         apiClient.users.getSubscriptions(),
         apiClient.users.getBookingHistory(),
+        apiClient.bookings.getMyUpcoming(),
         apiClient.groupEnrollments.getMyEnrollments(),
       ]);
       setSubscriptions(subs);
       setBookings(bookingHistory);
+      setUpcomingBookings(upcoming);
       setEnrollments(myEnrollments);
     } catch (error) {
       console.error('Ошибка при загрузке данных:', error);
@@ -184,6 +187,32 @@ export default function ProfilePage() {
       console.error('Ошибка отмены зачисления:', error);
       alert(error.response?.data?.message || 'Не удалось отменить запись');
     }
+  };
+
+  const handleCancelBooking = async (bookingId: string) => {
+    if (!confirm('Вы уверены, что хотите отменить участие в этом занятии?')) {
+      return;
+    }
+
+    try {
+      await apiClient.bookings.cancel(bookingId);
+      alert('Запись успешно отменена');
+      await loadData();
+    } catch (error: any) {
+      console.error('Ошибка отмены записи:', error);
+      alert(error.response?.data?.message || 'Не удалось отменить запись');
+    }
+  };
+
+  const formatDateTime = (date: string | Date | undefined) => {
+    if (!date) return 'Не указано';
+    return new Date(date).toLocaleDateString('ru-RU', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   if (isLoading || loading) {
@@ -317,16 +346,16 @@ export default function ProfilePage() {
           <div className={styles.rightColumn}>
             <div className={styles.tabs}>
               <button
+                className={`${styles.tab} ${activeTab === 'upcoming' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('upcoming')}
+              >
+                Предстоящие занятия ({upcomingBookings.length})
+              </button>
+              <button
                 className={`${styles.tab} ${activeTab === 'subscriptions' ? styles.tabActive : ''}`}
                 onClick={() => setActiveTab('subscriptions')}
               >
                 Абонементы ({subscriptions.length})
-              </button>
-              <button
-                className={`${styles.tab} ${activeTab === 'bookings' ? styles.tabActive : ''}`}
-                onClick={() => setActiveTab('bookings')}
-              >
-                История записей ({bookings.length})
               </button>
               <button
                 className={`${styles.tab} ${activeTab === 'enrollments' ? styles.tabActive : ''}`}
@@ -334,9 +363,64 @@ export default function ProfilePage() {
               >
                 Мои направления ({enrollments.filter(e => e.status === 'ACTIVE').length})
               </button>
+              <button
+                className={`${styles.tab} ${activeTab === 'bookings' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('bookings')}
+              >
+                История записей ({bookings.length})
+              </button>
             </div>
 
             <div className={styles.tabContent}>
+              {activeTab === 'upcoming' && (
+                <div className={styles.upcomingList}>
+                  {upcomingBookings.length === 0 ? (
+                    <div className={styles.emptyState}>
+                      <div className={styles.emptyIcon}>📅</div>
+                      <p>У вас нет предстоящих занятий</p>
+                    </div>
+                  ) : (
+                    upcomingBookings.map((booking) => {
+                      const eventDate = booking.event?.startDate || booking.groupSession?.date;
+                      const eventTitle = booking.event?.title || booking.groupSession?.group?.name || 'Занятие';
+                      const isGroupSession = !!booking.groupSessionId;
+
+                      return (
+                        <div key={booking.id} className={styles.listCard}>
+                          <div className={styles.listCardHeader}>
+                            <div>
+                              <h3 className={styles.listCardTitle}>
+                                {eventTitle}
+                              </h3>
+                              <p className={styles.listCardSubtitle}>
+                                {formatDateTime(eventDate)}
+                                {isGroupSession && ' • Занятие направления'}
+                              </p>
+                              <p className={styles.listCardSubtitle}>
+                                Участников: {booking.participantsCount} • {booking.totalPrice.toFixed(2)} ₽
+                              </p>
+                            </div>
+                            {getBookingStatusBadge(booking.status)}
+                          </div>
+                          <div className={styles.listCardFooter}>
+                            <span>
+                              {booking.status === 'PENDING' && 'Деньги будут списаны за день до занятия'}
+                              {booking.status === 'CONFIRMED' && 'Деньги списаны, вы записаны на занятие'}
+                            </span>
+                            <button
+                              onClick={() => handleCancelBooking(booking.id)}
+                              className={styles.cancelButton}
+                            >
+                              Отменить участие
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              )}
+
               {activeTab === 'subscriptions' && (
                 <div className={styles.subscriptionsList}>
                   <button onClick={handlePurchaseClick} className={styles.purchaseButton}>

@@ -62,4 +62,13 @@ export class BookingsController {
   cancel(@Param('id') id: string) {
     return this.bookingsService.cancel(id);
   }
+
+  @Get('my/upcoming')
+  @UseGuards(OptionalJwtAuthGuard)
+  getMyUpcomingBookings(@Request() req) {
+    if (!req.user) {
+      return [];
+    }
+    return this.bookingsService.getUpcomingUserBookings(req.user.id);
+  }
 }

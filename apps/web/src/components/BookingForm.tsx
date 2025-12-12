@@ -32,7 +32,10 @@ export default function BookingForm({ event, groupSessionId, onSuccess, onCancel
   const availableSeats = event.maxParticipants - event.currentParticipants;
   const totalPrice = event.price * participants.length;
   const discountedPrice = totalPrice * 0.9; // Скидка 10% при оплате через абонемент
-  const canUseSubscription = isAuthenticated && activeSubscription && activeSubscription.remainingBalance >= discountedPrice;
+  // Для направлений нужен только активный абонемент, баланс не проверяем (деньги списываются позже)
+  const canUseSubscription = isGroupSession
+    ? (isAuthenticated && activeSubscription && activeSubscription.remainingBalance > 0)
+    : (isAuthenticated && activeSubscription && activeSubscription.remainingBalance >= discountedPrice);
 
   // Автозаполнение данных пользователя
   useEffect(() => {
@@ -158,6 +161,8 @@ export default function BookingForm({ event, groupSessionId, onSuccess, onCancel
               {canUseSubscription ? (
                 <div className={styles.subscriptionActive}>
                   ✓ Оплата с абонемента (баланс: {activeSubscription?.remainingBalance.toFixed(2)} ₽)
+                  <br />
+                  <small>Деньги будут списываться за каждое занятие за день до его начала</small>
                 </div>
               ) : (
                 <div className={styles.subscriptionInactive}>
