@@ -39,12 +39,24 @@ export interface Event {
   updatedAt: Date;
 }
 
+// Событие для календаря (может быть как Event, так и GroupSession)
+export interface CalendarEvent extends Event {
+  groupSessionId?: string; // Если это занятие направления
+}
+
 // Мастер-класс (расширение Event)
 export interface MasterClass extends Event {
   type: EventType.MASTER_CLASS;
   resultImages: string[];
   materials?: string[];
   difficulty: 'beginner' | 'intermediate' | 'advanced';
+}
+
+// Расписание направления
+export interface GroupSchedule {
+  daysOfWeek: number[]; // 0=Воскресенье, 1=Понедельник, ...6=Суббота
+  time: string; // HH:MM формат (например "18:00")
+  duration: number; // Продолжительность в минутах
 }
 
 // Постоянная группа (направление)
@@ -54,11 +66,31 @@ export interface RegularGroup {
   description: string;
   shortDescription: string;
   imageUrl?: string;
-  schedule: string; // например "Каждый понедельник 18:00"
+  schedule: GroupSchedule;
   price: number;
   maxParticipants: number;
   masterId: string;
   isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Статусы занятий направления
+export enum SessionStatus {
+  SCHEDULED = 'SCHEDULED',
+  CANCELLED = 'CANCELLED',
+  COMPLETED = 'COMPLETED',
+}
+
+// Занятие направления
+export interface GroupSession {
+  id: string;
+  groupId: string;
+  date: Date;
+  duration: number;
+  status: SessionStatus;
+  currentParticipants: number;
+  notes?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -79,17 +111,46 @@ export interface Master {
   updatedAt: Date;
 }
 
-// Запись на событие
+// Участник записи
+export interface BookingParticipant {
+  fullName: string;
+  phone: string;
+  age?: number;
+}
+
+// Способ оплаты
+export enum PaymentMethod {
+  SUBSCRIPTION = 'SUBSCRIPTION', // Оплата с абонемента
+  ON_SITE = 'ON_SITE', // Оплата на месте
+}
+
+// Запись на событие или занятие направления
 export interface Booking {
   id: string;
-  userId: string;
-  eventId: string;
+  userId?: string;
+  eventId?: string; // Для мастер-классов
+  groupSessionId?: string; // Для занятий направлений
+  subscriptionId?: string;
   status: BookingStatus;
   participantsCount: number;
   totalPrice: number;
+  paymentMethod: PaymentMethod;
   notes?: string;
+  participants: BookingParticipant[];
+  contactEmail: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+// DTO для создания записи на мастер-класс
+export interface CreateBookingDto {
+  eventId?: string; // Для мастер-классов
+  groupSessionId?: string; // Для занятий направлений
+  participants: BookingParticipant[];
+  contactEmail: string;
+  paymentMethod: PaymentMethod;
+  notes?: string;
+  subscriptionId?: string; // Обязательно для направлений
 }
 
 // Пользователь
@@ -99,8 +160,12 @@ export interface User {
   phone?: string;
   firstName: string;
   lastName: string;
+  age?: number;
   avatarUrl?: string;
   role: 'user' | 'admin' | 'master';
+  emailVerified: boolean;
+  vkId?: string;
+  telegramId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -171,4 +236,109 @@ export interface Upload {
   path: string;
   url: string;
   createdAt: Date;
+}
+
+// Статусы зачисления в группу
+export enum EnrollmentStatus {
+  ACTIVE = 'ACTIVE',
+  PAUSED = 'PAUSED',
+  CANCELLED = 'CANCELLED',
+  COMPLETED = 'COMPLETED',
+}
+
+// Зачисление пользователя в постоянную группу
+export interface GroupEnrollment {
+  id: string;
+  userId: string;
+  groupId: string;
+  subscriptionId?: string;
+  status: EnrollmentStatus;
+  enrolledAt: Date;
+  expiresAt?: Date;
+  notes?: string;
+  participants: BookingParticipant[];
+  contactEmail: string;
+  createdAt: Date;
+  updatedAt: Date;
+  group?: RegularGroup; // Опционально включается при запросе
+  subscription?: Subscription; // Опционально включается при запросе
+}
+
+// DTO для зачисления в группу
+export interface CreateEnrollmentDto {
+  groupId: string;
+  participants: BookingParticipant[];
+  contactEmail: string;
+  subscriptionId?: string;
+  notes?: string;
+}
+
+// Статусы абонементов
+export enum SubscriptionStatus {
+  ACTIVE = 'ACTIVE',
+  EXPIRED = 'EXPIRED',
+  DEPLETED = 'DEPLETED',
+  CANCELLED = 'CANCELLED',
+}
+
+// Тип абонемента (шаблон для покупки)
+export interface SubscriptionType {
+  id: string;
+  name: string;
+  description: string;
+  amount: number; // Сумма пополнения баланса (в рублях)
+  price: number; // Стоимость (сколько нужно заплатить)
+  durationDays?: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Абонемент пользователя
+export interface Subscription {
+  id: string;
+  userId: string;
+  typeId: string;
+  name: string;
+  totalBalance: number; // Общий баланс в рублях
+  remainingBalance: number; // Оставшийся баланс в рублях
+  price: number;
+  status: SubscriptionStatus;
+  purchasedAt: Date;
+  expiresAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  subscriptionType?: SubscriptionType;
+}
+
+// Auth DTOs
+export interface RegisterDto {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+}
+
+export interface LoginDto {
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  user: User;
+  accessToken: string;
+}
+
+export interface VerifyEmailDto {
+  token: string;
+}
+
+export interface ResetPasswordDto {
+  token: string;
+  newPassword: string;
+}
+
+export interface ForgotPasswordDto {
+  email: string;
 }

@@ -12,7 +12,13 @@ interface ImageUploadProps {
 
 export default function ImageUpload({ currentImageUrl, onImageChange, label }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState(currentImageUrl || '');
+  // Преобразуем относительный URL в полный для preview
+  const getFullUrl = (url?: string) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}${url}`;
+  };
+  const [previewUrl, setPreviewUrl] = useState(getFullUrl(currentImageUrl));
   const [useUrlInput, setUseUrlInput] = useState(false);
   const [urlInput, setUrlInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -48,8 +54,10 @@ export default function ImageUpload({ currentImageUrl, onImageChange, label }: I
         upload.url
       }`;
       console.log('Full URL:', fullUrl);
+      console.log('Relative URL to save:', upload.url);
       setPreviewUrl(fullUrl);
-      onImageChange(fullUrl);
+      // Сохраняем в базу только относительный путь
+      onImageChange(upload.url);
     } catch (error) {
       console.error('Ошибка загрузки файла:', error);
       alert(`Не удалось загрузить файл: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);

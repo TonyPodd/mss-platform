@@ -70,7 +70,8 @@ export class EventsService {
   }
 
   async findCalendarEvents(startDate: Date, endDate: Date) {
-    return this.prisma.event.findMany({
+    // Получаем события (мастер-классы)
+    const events = await this.prisma.event.findMany({
       where: {
         AND: [
           {
@@ -95,6 +96,36 @@ export class EventsService {
         startDate: 'asc',
       },
     });
+
+    // Получаем групповые занятия
+    const groupSessions = await this.prisma.groupSession.findMany({
+      where: {
+        date: {
+          gte: startDate,
+          lte: endDate,
+        },
+        status: {
+          not: 'CANCELLED',
+        },
+      },
+      include: {
+        group: {
+          include: {
+            master: true,
+          },
+        },
+        bookings: true,
+      },
+      orderBy: {
+        date: 'asc',
+      },
+    });
+
+    // Возвращаем оба типа событий
+    return {
+      events,
+      groupSessions,
+    };
   }
 
   async findOne(id: string) {

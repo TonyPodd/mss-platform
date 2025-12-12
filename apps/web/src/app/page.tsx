@@ -28,12 +28,24 @@ export default async function HomePage() {
       <main className={styles.main}>
         <div className={styles.container}>
           <section className={styles.hero}>
-            <h1>Добро пожаловать в MSS Platform!</h1>
-            <p>Творческая студия мастер-классов и развития</p>
+            <div className={styles.heroContent}>
+              <h1>Творческая студия мастер-классов</h1>
+              <p>Откройте для себя мир творчества! Присоединяйтесь к нашим мастер-классам по рисованию, лепке, декору и многому другому</p>
+              <div className={styles.heroButtons}>
+                <a href="/calendar" className={styles.heroPrimary}>
+                  Посмотреть календарь
+                </a>
+                <a href="#events" className={styles.heroSecondary}>
+                  Ближайшие мастер-классы
+                </a>
+              </div>
+            </div>
           </section>
 
           <NewsSlider news={news} />
-          <UpcomingEvents events={events} />
+          <div id="events">
+            <UpcomingEvents events={events} />
+          </div>
         </div>
       </main>
       <Footer />

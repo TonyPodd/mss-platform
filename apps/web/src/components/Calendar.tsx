@@ -1,0 +1,193 @@
+'use client';
+
+import { useState } from 'react';
+import { CalendarEvent, EVENT_COLORS } from '@mss/shared';
+import styles from './Calendar.module.css';
+
+interface CalendarProps {
+  events: CalendarEvent[];
+  onEventClick: (event: CalendarEvent) => void;
+}
+
+export default function Calendar({ events, onEventClick }: CalendarProps) {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  // Получаем первый и последний день месяца
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+
+  // Определяем с какого дня недели начинается месяц (0 = воскресенье, преобразуем в пн = 0)
+  const startDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+  const daysInMonth = lastDay.getDate();
+
+  // Названия месяцев и дней недели
+  const monthNames = [
+    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+  ];
+  const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+
+  // Навигация по месяцам
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(year, month - 1, 1));
+  };
+
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(year, month + 1, 1));
+  };
+
+  const goToToday = () => {
+    setCurrentDate(new Date());
+  };
+
+  // Получить события для конкретного дня
+  const getEventsForDay = (day: number) => {
+    const dayDate = new Date(year, month, day);
+    return events.filter(event => {
+      const eventDate = new Date(event.startDate);
+      return eventDate.getDate() === day &&
+             eventDate.getMonth() === month &&
+             eventDate.getFullYear() === year;
+    });
+  };
+
+  // Проверка, является ли день сегодняшним
+  const isToday = (day: number) => {
+    const today = new Date();
+    return day === today.getDate() &&
+           month === today.getMonth() &&
+           year === today.getFullYear();
+  };
+
+  // Генерация дней календаря
+  const calendarDays = [];
+
+  // Пустые ячейки до первого дня месяца
+  for (let i = 0; i < startDayOfWeek; i++) {
+    calendarDays.push(<div key={`empty-${i}`} className={styles.dayEmpty}></div>);
+  }
+
+  // Дни месяца
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dayEvents = getEventsForDay(day);
+    const isTodayClass = isToday(day) ? styles.today : '';
+    const isSelectedClass = selectedDay === day ? styles.selected : '';
+    const hasEvents = dayEvents.length > 0;
+
+    calendarDays.push(
+      <div
+        key={day}
+        className={`${styles.day} ${isTodayClass} ${isSelectedClass} ${hasEvents ? styles.hasEvents : ''}`}
+        onClick={() => hasEvents && setSelectedDay(selectedDay === day ? null : day)}
+      >
+        <div className={styles.dayNumber}>{day}</div>
+        {hasEvents && (
+          <div className={styles.eventIndicators}>
+            {dayEvents.slice(0, 3).map((event, index) => (
+              <div
+                key={event.id}
+                className={styles.eventDot}
+                style={{ backgroundColor: EVENT_COLORS[event.type] }}
+                title={event.title}
+              />
+            ))}
+            {dayEvents.length > 3 && (
+              <span className={styles.moreEvents}>+{dayEvents.length - 3}</span>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Получить события выбранного дня
+  const selectedDayEvents = selectedDay ? getEventsForDay(selectedDay) : [];
+
+  return (
+    <div className={styles.calendar}>
+      <div className={styles.header}>
+        <button onClick={goToPreviousMonth} className={styles.navButton}>
+          ←
+        </button>
+        <div className={styles.headerCenter}>
+          <h2 className={styles.monthTitle}>
+            {monthNames[month]} {year}
+          </h2>
+          <button onClick={goToToday} className={styles.todayButton}>
+            Сегодня
+          </button>
+        </div>
+        <button onClick={goToNextMonth} className={styles.navButton}>
+          →
+        </button>
+      </div>
+
+      <div className={styles.legend}>
+        <div className={styles.legendItem}>
+          <span className={styles.legendColor} style={{ backgroundColor: EVENT_COLORS.MASTER_CLASS }}></span>
+          <span>Мастер-классы</span>
+        </div>
+        <div className={styles.legendItem}>
+          <span className={styles.legendColor} style={{ backgroundColor: EVENT_COLORS.REGULAR_GROUP }}></span>
+          <span>Постоянные группы</span>
+        </div>
+        <div className={styles.legendItem}>
+          <span className={styles.legendColor} style={{ backgroundColor: EVENT_COLORS.ONE_TIME_EVENT }}></span>
+          <span>Разовые события</span>
+        </div>
+      </div>
+
+      <div className={styles.weekDays}>
+        {dayNames.map(day => (
+          <div key={day} className={styles.weekDay}>
+            {day}
+          </div>
+        ))}
+      </div>
+
+      <div className={styles.days}>
+        {calendarDays}
+      </div>
+
+      {selectedDay && selectedDayEvents.length > 0 && (
+        <div className={styles.selectedDayEvents}>
+          <h3 className={styles.selectedDayTitle}>
+            События на {selectedDay} {monthNames[month].toLowerCase()}
+          </h3>
+          <div className={styles.eventsList}>
+            {selectedDayEvents.map(event => (
+              <div
+                key={event.id}
+                className={styles.eventCard}
+                onClick={() => onEventClick(event)}
+              >
+                <div
+                  className={styles.eventCardBadge}
+                  style={{ backgroundColor: EVENT_COLORS[event.type] }}
+                />
+                <div className={styles.eventCardContent}>
+                  <h4 className={styles.eventCardTitle}>{event.title}</h4>
+                  <p className={styles.eventCardDescription}>
+                    {event.description.length > 80
+                      ? event.description.substring(0, 80) + '...'
+                      : event.description}
+                  </p>
+                  <div className={styles.eventCardFooter}>
+                    <span className={styles.eventCardPrice}>{event.price} ₽</span>
+                    <span className={styles.eventCardSeats}>
+                      Мест: {event.maxParticipants - event.currentParticipants}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

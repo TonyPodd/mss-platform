@@ -8,6 +8,8 @@
   top: 0;
   padding: 1.5rem 0;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .logo {
@@ -53,6 +55,33 @@
   font-size: 1.25rem;
 }
 
+.logoutSection {
+  margin-top: auto;
+  padding: 1rem 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logoutButton {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  color: #b8bcc8;
+  background: none;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1rem;
+  text-align: left;
+}
+
+.logoutButton:hover {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+}
+
 @media (max-width: 768px) {
   .sidebar {
     width: 100%;
@@ -71,5 +100,15 @@
     gap: 0.25rem;
     font-size: 0.75rem;
     min-width: 80px;
+  }
+
+  .logoutSection {
+    padding: 0.5rem;
+  }
+
+  .logoutButton {
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.75rem;
   }
 }

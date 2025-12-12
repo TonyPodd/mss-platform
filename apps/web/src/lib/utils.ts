@@ -10,6 +10,10 @@ export function getImageUrl(url?: string | null): string | undefined {
   }
 
   // Если относительный путь, добавляем базовый URL API
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  // Используем window.location для определения текущего хоста, но API всегда на порту 3000
+  const apiUrl = typeof window !== 'undefined'
+    ? `${window.location.protocol}//${window.location.hostname}:3000`
+    : 'http://localhost:3000';
+
   return `${apiUrl}${url}`;
 }

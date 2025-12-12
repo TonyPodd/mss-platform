@@ -4,12 +4,19 @@ import {
   Event,
   MasterClass,
   RegularGroup,
+  GroupSession,
   Master,
   Booking,
   Product,
   Order,
   News,
   User,
+  Subscription,
+  SubscriptionType,
+  CreateBookingDto,
+  BookingParticipant,
+  GroupEnrollment,
+  CreateEnrollmentDto,
 } from '@mss/shared';
 
 export interface PaginatedResponse<T> {
@@ -22,12 +29,6 @@ export interface PaginatedResponse<T> {
 export interface CalendarEventsParams {
   startDate: string;
   endDate: string;
-}
-
-export interface CreateBookingDto {
-  eventId: string;
-  participantsCount: number;
-  notes?: string;
 }
 
 export class EventsService {
@@ -76,15 +77,19 @@ export class BookingsService {
   constructor(private client: ApiClient) {}
 
   async create(data: CreateBookingDto): Promise<Booking> {
-    return this.client.post<Booking>(API_ROUTES.BOOKINGS.CREATE, data);
+    return this.client.post<Booking>('/bookings', data);
   }
 
   async getList(): Promise<Booking[]> {
-    return this.client.get<Booking[]>(API_ROUTES.BOOKINGS.LIST);
+    return this.client.get<Booking[]>('/bookings');
+  }
+
+  async getById(id: string): Promise<Booking> {
+    return this.client.get<Booking>(`/bookings/${id}`);
   }
 
   async cancel(id: string): Promise<Booking> {
-    return this.client.post<Booking>(API_ROUTES.BOOKINGS.CANCEL(id));
+    return this.client.patch<Booking>(`/bookings/${id}/cancel`, {});
   }
 }
 
@@ -119,8 +124,99 @@ export class GroupsService {
     return this.client.get<RegularGroup[]>(API_ROUTES.GROUPS.ACTIVE);
   }
 
+  async getList(): Promise<RegularGroup[]> {
+    return this.client.get<RegularGroup[]>(API_ROUTES.GROUPS.LIST);
+  }
+
   async getById(id: string): Promise<RegularGroup> {
     return this.client.get<RegularGroup>(API_ROUTES.GROUPS.BY_ID(id));
+  }
+
+  async create(data: any): Promise<RegularGroup> {
+    return this.client.post<RegularGroup>(API_ROUTES.GROUPS.LIST, data);
+  }
+
+  async update(id: string, data: any): Promise<RegularGroup> {
+    return this.client.patch<RegularGroup>(API_ROUTES.GROUPS.BY_ID(id), data);
+  }
+
+  async delete(id: string): Promise<void> {
+    return this.client.delete<void>(API_ROUTES.GROUPS.BY_ID(id));
+  }
+
+  async toggleActive(id: string): Promise<RegularGroup> {
+    return this.client.post<RegularGroup>(`/groups/${id}/toggle-active`, {});
+  }
+}
+
+export class GroupSessionsService {
+  constructor(private client: ApiClient) {}
+
+  async generateSessions(groupId: string, startDate: Date, endDate: Date): Promise<GroupSession[]> {
+    return this.client.post<GroupSession[]>('/group-sessions/generate', {
+      groupId,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    });
+  }
+
+  async getUpcomingSessions(groupId: string): Promise<GroupSession[]> {
+    return this.client.get<GroupSession[]>(`/group-sessions/group/${groupId}/upcoming`);
+  }
+
+  async getSessionById(id: string): Promise<GroupSession> {
+    return this.client.get<GroupSession>(`/group-sessions/${id}`);
+  }
+
+  async getAllSessions(startDate?: Date, endDate?: Date): Promise<GroupSession[]> {
+    const params: any = {};
+    if (startDate) params.startDate = startDate.toISOString();
+    if (endDate) params.endDate = endDate.toISOString();
+    return this.client.get<GroupSession[]>('/group-sessions', { params });
+  }
+
+  async cancelSession(id: string, notes?: string): Promise<GroupSession> {
+    return this.client.patch<GroupSession>(`/group-sessions/${id}/cancel`, { notes });
+  }
+
+  async deleteSession(id: string): Promise<void> {
+    return this.client.delete<void>(`/group-sessions/${id}`);
+  }
+}
+
+export class GroupEnrollmentsService {
+  constructor(private client: ApiClient) {}
+
+  async enroll(data: CreateEnrollmentDto): Promise<GroupEnrollment> {
+    return this.client.post<GroupEnrollment>('/group-enrollments', data);
+  }
+
+  async getMyEnrollments(): Promise<GroupEnrollment[]> {
+    return this.client.get<GroupEnrollment[]>('/group-enrollments/my');
+  }
+
+  async getEnrollmentById(id: string): Promise<GroupEnrollment> {
+    return this.client.get<GroupEnrollment>(`/group-enrollments/${id}`);
+  }
+
+  async cancelEnrollment(id: string): Promise<GroupEnrollment> {
+    return this.client.patch<GroupEnrollment>(`/group-enrollments/${id}/cancel`, {});
+  }
+
+  async pauseEnrollment(id: string): Promise<GroupEnrollment> {
+    return this.client.patch<GroupEnrollment>(`/group-enrollments/${id}/pause`, {});
+  }
+
+  async resumeEnrollment(id: string): Promise<GroupEnrollment> {
+    return this.client.patch<GroupEnrollment>(`/group-enrollments/${id}/resume`, {});
+  }
+
+  async checkEnrollment(groupId: string): Promise<{ isEnrolled: boolean }> {
+    return this.client.get<{ isEnrolled: boolean }>(`/group-enrollments/check/${groupId}`);
+  }
+
+  async getActiveEnrollment(groupId: string): Promise<GroupEnrollment | null> {
+    return this.client.get<GroupEnrollment | null>(`/group-enrollments/active/${groupId}`);
   }
 }
 
@@ -194,7 +290,7 @@ export class AuthService {
   constructor(private client: ApiClient) {}
 
   async login(email: string, password: string): Promise<{ accessToken: string; user: User }> {
-    return this.client.post(API_ROUTES.AUTH.LOGIN, { email, password });
+    return this.client.post('/auth/login', { email, password });
   }
 
   async register(data: {
@@ -202,12 +298,114 @@ export class AuthService {
     password: string;
     firstName: string;
     lastName: string;
+    phone?: string;
+    age?: number;
   }): Promise<{ accessToken: string; user: User }> {
-    return this.client.post(API_ROUTES.AUTH.REGISTER, data);
+    return this.client.post('/auth/register', data);
   }
 
-  async logout(): Promise<void> {
-    return this.client.post(API_ROUTES.AUTH.LOGOUT);
+  async verifyEmail(token: string): Promise<{ message: string }> {
+    return this.client.get(`/auth/verify-email?token=${token}`);
+  }
+
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    return this.client.post('/auth/forgot-password', { email });
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    return this.client.post('/auth/reset-password', { token, newPassword });
+  }
+
+  async getCurrentUser(): Promise<User> {
+    return this.client.get('/auth/me');
+  }
+}
+
+export class UsersService {
+  constructor(private client: ApiClient) {}
+
+  async getProfile(): Promise<User> {
+    return this.client.get('/users/me');
+  }
+
+  async updateProfile(data: {
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    email?: string;
+    avatarUrl?: string;
+    age?: number;
+  }): Promise<User> {
+    return this.client.patch('/users/me', data);
+  }
+
+  async getSubscriptions(): Promise<Subscription[]> {
+    return this.client.get('/users/me/subscriptions');
+  }
+
+  async getSubscriptionById(subscriptionId: string): Promise<Subscription> {
+    return this.client.get(`/users/me/subscriptions/${subscriptionId}`);
+  }
+
+  async getActiveSubscription(): Promise<Subscription | null> {
+    return this.client.get('/users/me/active-subscription');
+  }
+
+  async getBookingHistory(): Promise<Booking[]> {
+    return this.client.get('/users/me/bookings');
+  }
+
+  async purchaseSubscription(typeId: string): Promise<Subscription> {
+    return this.client.post('/users/me/subscriptions/purchase', { typeId });
+  }
+}
+
+export class SubscriptionTypesService {
+  constructor(private client: ApiClient) {}
+
+  async getAll(): Promise<SubscriptionType[]> {
+    return this.client.get<SubscriptionType[]>('/subscription-types');
+  }
+
+  async getActive(): Promise<SubscriptionType[]> {
+    return this.client.get<SubscriptionType[]>('/subscription-types/active');
+  }
+
+  async getById(id: string): Promise<SubscriptionType> {
+    return this.client.get<SubscriptionType>(`/subscription-types/${id}`);
+  }
+
+  async create(data: {
+    name: string;
+    description: string;
+    classCount: number;
+    price: number;
+    durationDays?: number;
+    isActive?: boolean;
+  }): Promise<SubscriptionType> {
+    return this.client.post<SubscriptionType>('/subscription-types', data);
+  }
+
+  async update(
+    id: string,
+    data: {
+      name?: string;
+      description?: string;
+      classCount?: number;
+      price?: number;
+      durationDays?: number;
+      isActive?: boolean;
+    },
+  ): Promise<SubscriptionType> {
+    return this.client.patch<SubscriptionType>(`/subscription-types/${id}`, data);
+  }
+
+  async delete(id: string): Promise<void> {
+    return this.client.delete<void>(`/subscription-types/${id}`);
+  }
+
+  async toggleActive(id: string): Promise<SubscriptionType> {
+    return this.client.post<SubscriptionType>(`/subscription-types/${id}/toggle-active`, {});
   }
 }
 
