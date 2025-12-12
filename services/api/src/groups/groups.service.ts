@@ -104,14 +104,35 @@ export class GroupsService {
 
   async update(id: string, updateGroupDto: UpdateGroupDto) {
     try {
+      // Получаем текущее направление
+      const currentGroup = await this.prisma.regularGroup.findUnique({
+        where: { id },
+      });
+
+      if (!currentGroup) {
+        throw new NotFoundException('Направление не найдено');
+      }
+
       const { schedule, ...rest } = updateGroupDto;
       const data: any = { ...rest };
 
+      // Проверяем изменилось ли расписание
+      let scheduleChanged = false;
       if (schedule) {
+        const currentSchedule = currentGroup.schedule as any;
+        const newSchedule = schedule as any;
+
+        // Сравниваем расписания
+        scheduleChanged =
+          JSON.stringify(currentSchedule?.daysOfWeek) !== JSON.stringify(newSchedule?.daysOfWeek) ||
+          currentSchedule?.time !== newSchedule?.time ||
+          currentSchedule?.duration !== newSchedule?.duration;
+
         data.schedule = schedule as any; // Prisma Json type
       }
 
-      return await this.prisma.regularGroup.update({
+      // Обновляем направление
+      const updatedGroup = await this.prisma.regularGroup.update({
         where: { id },
         data,
         include: {
@@ -124,7 +145,51 @@ export class GroupsService {
           },
         },
       });
+
+      // Если расписание изменилось, пересоздаем занятия
+      if (scheduleChanged && updatedGroup.isActive) {
+        try {
+          const now = new Date();
+
+          // Удаляем будущие занятия без подтвержденных броней
+          await this.prisma.groupSession.deleteMany({
+            where: {
+              groupId: id,
+              date: {
+                gt: now,
+              },
+              OR: [
+                {
+                  bookings: {
+                    none: {},
+                  },
+                },
+                {
+                  bookings: {
+                    every: {
+                      status: {
+                        in: ['CANCELLED'],
+                      },
+                    },
+                  },
+                },
+              ],
+            },
+          });
+
+          // Генерируем новые занятия
+          await this.tasksService.generateSessionsForGroup(id);
+        } catch (error) {
+          console.error('Ошибка при пересоздании занятий:', error);
+          // Не прерываем обновление направления
+        }
+      }
+
+      return updatedGroup;
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new NotFoundException('Направление не найдено');
     }
   }
