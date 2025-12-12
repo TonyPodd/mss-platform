@@ -64,4 +64,10 @@ export class GroupEnrollmentsController {
   async getActiveEnrollment(@Param('groupId') groupId: string, @Request() req) {
     return this.enrollmentsService.getActiveEnrollment(req.user.id, groupId);
   }
+
+  @Get(':enrollmentId/upcoming-sessions')
+  @UseGuards(JwtAuthGuard)
+  async getUpcomingSessions(@Param('enrollmentId') enrollmentId: string, @Request() req) {
+    return this.enrollmentsService.getUpcomingSessions(enrollmentId, req.user.id);
+  }
 }

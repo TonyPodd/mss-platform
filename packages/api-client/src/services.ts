@@ -222,6 +222,10 @@ export class GroupEnrollmentsService {
   async getActiveEnrollment(groupId: string): Promise<GroupEnrollment | null> {
     return this.client.get<GroupEnrollment | null>(`/group-enrollments/active/${groupId}`);
   }
+
+  async getUpcomingSessions(enrollmentId: string): Promise<any[]> {
+    return this.client.get<any[]>(`/group-enrollments/${enrollmentId}/upcoming-sessions`);
+  }
 }
 
 export class ProductsService {

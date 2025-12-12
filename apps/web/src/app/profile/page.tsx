@@ -15,6 +15,9 @@ export default function ProfilePage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([]);
   const [enrollments, setEnrollments] = useState<GroupEnrollment[]>([]);
+  const [expandedEnrollment, setExpandedEnrollment] = useState<string | null>(null);
+  const [enrollmentSessions, setEnrollmentSessions] = useState<Record<string, any[]>>({});
+  const [loadingSessions, setLoadingSessions] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -213,6 +216,31 @@ export default function ProfilePage() {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  const toggleEnrollmentSessions = async (enrollmentId: string) => {
+    if (expandedEnrollment === enrollmentId) {
+      setExpandedEnrollment(null);
+      return;
+    }
+
+    setExpandedEnrollment(enrollmentId);
+
+    // Если уже загружали - не загружаем повторно
+    if (enrollmentSessions[enrollmentId]) {
+      return;
+    }
+
+    setLoadingSessions(enrollmentId);
+    try {
+      const sessions = await apiClient.groupEnrollments.getUpcomingSessions(enrollmentId);
+      setEnrollmentSessions(prev => ({ ...prev, [enrollmentId]: sessions }));
+    } catch (error) {
+      console.error('Ошибка загрузки занятий:', error);
+      alert('Не удалось загрузить список занятий');
+    } finally {
+      setLoadingSessions(null);
+    }
   };
 
   if (isLoading || loading) {
@@ -495,29 +523,79 @@ export default function ProfilePage() {
                     enrollments
                       .filter(e => e.status === 'ACTIVE')
                       .map((enrollment) => (
-                        <div key={enrollment.id} className={styles.listCard}>
-                          <div className={styles.listCardHeader}>
-                            <div>
-                              <h3 className={styles.listCardTitle}>
-                                {enrollment.group?.name || 'Направление'}
-                              </h3>
-                              <p className={styles.listCardSubtitle}>
-                                {enrollment.participants.length} участник(ов)
-                                {enrollment.group?.schedule && ` • ${enrollment.group.schedule.time}`}
-                              </p>
+                        <div key={enrollment.id} className={styles.enrollmentCard}>
+                          <div className={styles.listCard}>
+                            <div className={styles.listCardHeader}>
+                              <div>
+                                <h3 className={styles.listCardTitle}>
+                                  {enrollment.group?.name || 'Направление'}
+                                </h3>
+                                <p className={styles.listCardSubtitle}>
+                                  {enrollment.participants.length} участник(ов)
+                                  {enrollment.group?.schedule && ` • ${enrollment.group.schedule.time}`}
+                                </p>
+                              </div>
+                              <div className={styles.enrollmentActions}>
+                                <button
+                                  onClick={() => toggleEnrollmentSessions(enrollment.id)}
+                                  className={styles.viewSessionsButton}
+                                >
+                                  {expandedEnrollment === enrollment.id ? 'Скрыть занятия' : 'Показать занятия'}
+                                </button>
+                                <button
+                                  onClick={() => handleCancelEnrollment(enrollment.id)}
+                                  className={styles.cancelEnrollmentButton}
+                                >
+                                  Отписаться
+                                </button>
+                              </div>
                             </div>
-                            <div className={styles.enrollmentActions}>
-                              <button
-                                onClick={() => handleCancelEnrollment(enrollment.id)}
-                                className={styles.cancelEnrollmentButton}
-                              >
-                                Отписаться
-                              </button>
+                            <div className={styles.listCardFooter}>
+                              <span>Дата записи: {formatDate(enrollment.createdAt)}</span>
                             </div>
                           </div>
-                          <div className={styles.listCardFooter}>
-                            <span>Дата записи: {formatDate(enrollment.createdAt)}</span>
-                          </div>
+
+                          {expandedEnrollment === enrollment.id && (
+                            <div className={styles.sessionsList}>
+                              {loadingSessions === enrollment.id ? (
+                                <div className={styles.loadingText}>Загрузка занятий...</div>
+                              ) : enrollmentSessions[enrollment.id]?.length === 0 ? (
+                                <div className={styles.emptySessionsText}>
+                                  Нет предстоящих занятий
+                                </div>
+                              ) : (
+                                enrollmentSessions[enrollment.id]?.map((session) => (
+                                  <div key={session.id} className={styles.sessionCard}>
+                                    <div className={styles.sessionInfo}>
+                                      <div className={styles.sessionDate}>
+                                        {formatDateTime(session.date)}
+                                      </div>
+                                      <div className={styles.sessionDetails}>
+                                        {session.duration} минут • {session.currentParticipants} участников
+                                      </div>
+                                    </div>
+                                    <div className={styles.sessionStatus}>
+                                      {session.booking ? (
+                                        <>
+                                          <span className={styles.bookingStatus}>
+                                            {session.booking.status === 'PENDING' ? '⏳ Ожидает оплаты' : '✓ Подтверждено'}
+                                          </span>
+                                          <button
+                                            onClick={() => handleCancelBooking(session.booking.id)}
+                                            className={styles.cancelSessionButton}
+                                          >
+                                            Отменить
+                                          </button>
+                                        </>
+                                      ) : (
+                                        <span className={styles.noBooking}>Запись будет создана автоматически</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          )}
                         </div>
                       ))
                   )}

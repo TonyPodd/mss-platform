@@ -207,4 +207,62 @@ export class GroupEnrollmentsService {
       },
     });
   }
+
+  // Получить предстоящие занятия для зачисления
+  async getUpcomingSessions(enrollmentId: string, userId: string) {
+    // Проверяем что зачисление принадлежит пользователю
+    const enrollment = await this.prisma.groupEnrollment.findUnique({
+      where: { id: enrollmentId },
+      include: {
+        group: true,
+      },
+    });
+
+    if (!enrollment) {
+      throw new NotFoundException('Запись не найдена');
+    }
+
+    if (enrollment.userId !== userId) {
+      throw new BadRequestException('Вы не можете просматривать чужие записи');
+    }
+
+    const now = new Date();
+
+    // Получаем все предстоящие занятия для этого направления
+    const sessions = await this.prisma.groupSession.findMany({
+      where: {
+        groupId: enrollment.groupId,
+        date: {
+          gte: now,
+        },
+        status: {
+          in: ['SCHEDULED'],
+        },
+      },
+      include: {
+        bookings: {
+          where: {
+            userId: userId,
+            status: {
+              in: ['PENDING', 'CONFIRMED'],
+            },
+          },
+        },
+      },
+      orderBy: {
+        date: 'asc',
+      },
+      take: 20, // Ограничиваем количество занятий
+    });
+
+    // Преобразуем данные в удобный формат
+    return sessions.map((session) => ({
+      id: session.id,
+      date: session.date,
+      duration: session.duration,
+      status: session.status,
+      currentParticipants: session.currentParticipants,
+      booking: session.bookings.length > 0 ? session.bookings[0] : null,
+    }));
+  }
 }

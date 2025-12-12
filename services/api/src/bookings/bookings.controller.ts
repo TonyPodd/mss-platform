@@ -9,6 +9,7 @@ import {
   HttpStatus,
   UseGuards,
   Request,
+  BadRequestException,
 } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 import { OptionalJwtAuthGuard } from '../auth/optional-auth.guard';
@@ -33,6 +34,11 @@ export class BookingsController {
       subscriptionId?: string;
     },
   ) {
+    // Проверяем авторизацию для оплаты через абонемент
+    if (createBookingDto.paymentMethod === 'SUBSCRIPTION' && !req.user) {
+      throw new BadRequestException('Для оплаты через абонемент необходимо войти в систему');
+    }
+
     return this.bookingsService.create({
       ...createBookingDto,
       userId: req.user?.id,
