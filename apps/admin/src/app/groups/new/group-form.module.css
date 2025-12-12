@@ -34,6 +34,25 @@
   border-color: #cbd5e0;
 }
 
+.sessionsButton {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid #4CAF50;
+  background: #4CAF50;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.sessionsButton:hover {
+  background: #45a049;
+  border-color: #45a049;
+}
+
 .form {
   background: white;
   border-radius: 12px;

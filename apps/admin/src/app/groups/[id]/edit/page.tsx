@@ -136,9 +136,14 @@ export default function EditGroupPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>Редактировать направление</h1>
-        <a href="/groups" className={styles.backButton}>
-          Назад к списку
-        </a>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <a href={`/groups/${groupId}/sessions`} className={styles.sessionsButton}>
+            📅 Управление занятиями
+          </a>
+          <a href="/groups" className={styles.backButton}>
+            Назад к списку
+          </a>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
