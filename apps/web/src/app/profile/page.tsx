@@ -243,6 +243,39 @@ export default function ProfilePage() {
     }
   };
 
+  const handleCreateBookings = async (enrollmentId: string) => {
+    if (!confirm('Создать записи на все предстоящие занятия? Деньги будут списаны за день до каждого занятия.')) {
+      return;
+    }
+
+    try {
+      const result = await apiClient.groupEnrollments.createBookings(enrollmentId);
+      alert(result.message + (result.errors.length > 0 ? '\n\nОшибки:\n' + result.errors.join('\n') : ''));
+
+      // Перезагружаем занятия
+      setEnrollmentSessions(prev => {
+        const updated = { ...prev };
+        delete updated[enrollmentId];
+        return updated;
+      });
+
+      if (expandedEnrollment === enrollmentId) {
+        setLoadingSessions(enrollmentId);
+        try {
+          const sessions = await apiClient.groupEnrollments.getUpcomingSessions(enrollmentId);
+          setEnrollmentSessions(prev => ({ ...prev, [enrollmentId]: sessions }));
+        } finally {
+          setLoadingSessions(null);
+        }
+      }
+
+      await loadData();
+    } catch (error: any) {
+      console.error('Ошибка создания записей:', error);
+      alert(error.response?.data?.message || 'Не удалось создать записи');
+    }
+  };
+
   if (isLoading || loading) {
     return (
       <div className={styles.loadingContainer}>
@@ -541,6 +574,12 @@ export default function ProfilePage() {
                                   className={styles.viewSessionsButton}
                                 >
                                   {expandedEnrollment === enrollment.id ? 'Скрыть занятия' : 'Показать занятия'}
+                                </button>
+                                <button
+                                  onClick={() => handleCreateBookings(enrollment.id)}
+                                  className={styles.createBookingsButton}
+                                >
+                                  Создать записи
                                 </button>
                                 <button
                                   onClick={() => handleCancelEnrollment(enrollment.id)}

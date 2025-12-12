@@ -70,4 +70,10 @@ export class GroupEnrollmentsController {
   async getUpcomingSessions(@Param('enrollmentId') enrollmentId: string, @Request() req) {
     return this.enrollmentsService.getUpcomingSessions(enrollmentId, req.user.id);
   }
+
+  @Post(':enrollmentId/create-bookings')
+  @UseGuards(JwtAuthGuard)
+  async createBookingsForEnrollment(@Param('enrollmentId') enrollmentId: string, @Request() req) {
+    return this.enrollmentsService.createBookingsForEnrollment(enrollmentId, req.user.id);
+  }
 }
