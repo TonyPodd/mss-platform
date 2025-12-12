@@ -50,7 +50,7 @@ export default function EditEventPage() {
         maxParticipants: event.maxParticipants,
         price: event.price,
         imageUrl: event.imageUrl || '',
-        materials: event.materials.join(', '),
+        materials: event.materials?.join(', ') || '',
         difficulty: event.difficulty || '',
         masterId: event.masterId,
       });

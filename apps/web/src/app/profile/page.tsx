@@ -243,38 +243,6 @@ export default function ProfilePage() {
     }
   };
 
-  const handleCreateBookings = async (enrollmentId: string) => {
-    if (!confirm('Создать записи на все предстоящие занятия? Деньги будут списаны за день до каждого занятия.')) {
-      return;
-    }
-
-    try {
-      const result = await apiClient.groupEnrollments.createBookings(enrollmentId);
-      alert(result.message + (result.errors.length > 0 ? '\n\nОшибки:\n' + result.errors.join('\n') : ''));
-
-      // Перезагружаем занятия
-      setEnrollmentSessions(prev => {
-        const updated = { ...prev };
-        delete updated[enrollmentId];
-        return updated;
-      });
-
-      if (expandedEnrollment === enrollmentId) {
-        setLoadingSessions(enrollmentId);
-        try {
-          const sessions = await apiClient.groupEnrollments.getUpcomingSessions(enrollmentId);
-          setEnrollmentSessions(prev => ({ ...prev, [enrollmentId]: sessions }));
-        } finally {
-          setLoadingSessions(null);
-        }
-      }
-
-      await loadData();
-    } catch (error: any) {
-      console.error('Ошибка создания записей:', error);
-      alert(error.response?.data?.message || 'Не удалось создать записи');
-    }
-  };
 
   if (isLoading || loading) {
     return (
@@ -576,12 +544,6 @@ export default function ProfilePage() {
                                   {expandedEnrollment === enrollment.id ? 'Скрыть занятия' : 'Показать занятия'}
                                 </button>
                                 <button
-                                  onClick={() => handleCreateBookings(enrollment.id)}
-                                  className={styles.createBookingsButton}
-                                >
-                                  Создать записи
-                                </button>
-                                <button
                                   onClick={() => handleCancelEnrollment(enrollment.id)}
                                   className={styles.cancelEnrollmentButton}
                                 >
@@ -617,17 +579,23 @@ export default function ProfilePage() {
                                       {session.booking ? (
                                         <>
                                           <span className={styles.bookingStatus}>
-                                            {session.booking.status === 'PENDING' ? '⏳ Ожидает оплаты' : '✓ Подтверждено'}
+                                            {session.booking.status === 'CANCELLED'
+                                              ? '✗ Отменено'
+                                              : session.booking.status === 'PENDING'
+                                              ? '⏳ Ожидает оплаты'
+                                              : '✓ Подтверждено'}
                                           </span>
-                                          <button
-                                            onClick={() => handleCancelBooking(session.booking.id)}
-                                            className={styles.cancelSessionButton}
-                                          >
-                                            Отменить
-                                          </button>
+                                          {session.booking.status !== 'CANCELLED' && (
+                                            <button
+                                              onClick={() => handleCancelBooking(session.booking.id)}
+                                              className={styles.cancelSessionButton}
+                                            >
+                                              Отменить
+                                            </button>
+                                          )}
                                         </>
                                       ) : (
-                                        <span className={styles.noBooking}>Запись будет создана автоматически</span>
+                                        <span className={styles.noBooking}>Вы можете посетить это занятие</span>
                                       )}
                                     </div>
                                   </div>

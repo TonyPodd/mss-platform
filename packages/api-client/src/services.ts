@@ -226,10 +226,6 @@ export class GroupEnrollmentsService {
   async getUpcomingSessions(enrollmentId: string): Promise<any[]> {
     return this.client.get<any[]>(`/group-enrollments/${enrollmentId}/upcoming-sessions`);
   }
-
-  async createBookings(enrollmentId: string): Promise<{ created: number; total: number; errors: string[]; message: string }> {
-    return this.client.post<{ created: number; total: number; errors: string[]; message: string }>(`/group-enrollments/${enrollmentId}/create-bookings`, {});
-  }
 }
 
 export class ProductsService {

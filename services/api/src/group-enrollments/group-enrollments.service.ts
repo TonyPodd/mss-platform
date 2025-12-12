@@ -243,9 +243,6 @@ export class GroupEnrollmentsService {
         bookings: {
           where: {
             userId: userId,
-            status: {
-              in: ['PENDING', 'CONFIRMED'],
-            },
           },
         },
       },
@@ -266,105 +263,4 @@ export class GroupEnrollmentsService {
     }));
   }
 
-  // Создать записи на все предстоящие занятия для зачисления (для тестирования)
-  async createBookingsForEnrollment(enrollmentId: string, userId: string) {
-    // Проверяем что зачисление принадлежит пользователю
-    const enrollment = await this.prisma.groupEnrollment.findUnique({
-      where: { id: enrollmentId },
-      include: {
-        group: true,
-        subscription: true,
-      },
-    });
-
-    if (!enrollment) {
-      throw new NotFoundException('Запись не найдена');
-    }
-
-    if (enrollment.userId !== userId) {
-      throw new BadRequestException('Вы не можете создавать записи для чужих зачислений');
-    }
-
-    if (enrollment.status !== EnrollmentStatus.ACTIVE) {
-      throw new BadRequestException('Можно создать записи только для активного зачисления');
-    }
-
-    const now = new Date();
-
-    // Получаем все предстоящие занятия без записей пользователя
-    const sessions = await this.prisma.groupSession.findMany({
-      where: {
-        groupId: enrollment.groupId,
-        date: {
-          gte: now,
-        },
-        status: 'SCHEDULED',
-      },
-      include: {
-        group: true,
-        bookings: {
-          where: {
-            userId: userId,
-          },
-        },
-      },
-      orderBy: {
-        date: 'asc',
-      },
-    });
-
-    let created = 0;
-    const errors: string[] = [];
-
-    for (const session of sessions) {
-      // Пропускаем если уже есть запись
-      if (session.bookings.length > 0) {
-        continue;
-      }
-
-      try {
-        // Проверяем баланс
-        if (!enrollment.subscription || enrollment.subscription.status !== 'ACTIVE') {
-          errors.push(`Нет активного абонемента для занятия ${session.date}`);
-          continue;
-        }
-
-        const price = session.group.price;
-        const discountedPrice = price * 0.9;
-
-        if (enrollment.subscription.remainingBalance < discountedPrice) {
-          errors.push(`Недостаточно средств для занятия ${session.date}. Требуется: ${discountedPrice}, доступно: ${enrollment.subscription.remainingBalance}`);
-          continue;
-        }
-
-        // Создаем запись
-        const participants = enrollment.participants as any[];
-        await this.prisma.booking.create({
-          data: {
-            userId: enrollment.userId,
-            groupSessionId: session.id,
-            subscriptionId: enrollment.subscriptionId,
-            participantsCount: participants.length,
-            totalPrice: discountedPrice,
-            paymentMethod: 'SUBSCRIPTION',
-            participants: enrollment.participants,
-            contactEmail: enrollment.contactEmail,
-            notes: 'Запись создана вручную',
-            status: 'PENDING',
-          },
-        });
-
-        created++;
-      } catch (error) {
-        errors.push(`Ошибка при создании записи на ${session.date}: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      }
-    }
-
-    return {
-      created,
-      total: sessions.length,
-      errors,
-      message: `Создано записей: ${created} из ${sessions.length}`,
-    };
-  }
 }

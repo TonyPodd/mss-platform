@@ -16,7 +16,8 @@ export default function Sidebar() {
     { href: '/masters', label: 'Мастера', icon: '👨‍🎨' },
     { href: '/news', label: 'Новости', icon: '📰' },
     { href: '/products', label: 'Товары', icon: '🛍️' },
-    { href: '/bookings', label: 'Записи', icon: '📝' },
+    { href: '/bookings', label: 'Записи на МК', icon: '📝' },
+    { href: '/enrollments', label: 'Зачисления', icon: '👥' },
   ];
 
   const handleLogout = () => {

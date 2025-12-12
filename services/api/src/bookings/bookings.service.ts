@@ -321,23 +321,37 @@ export class BookingsService {
     if (status === 'CANCELLED' && booking.status !== 'CANCELLED') {
       // Освобождаем места в событии или занятии
       if (booking.eventId) {
-        await this.prisma.event.update({
+        const event = await this.prisma.event.findUnique({
           where: { id: booking.eventId },
-          data: {
-            currentParticipants: {
-              decrement: booking.participantsCount,
-            },
-          },
+          select: { currentParticipants: true },
         });
+
+        if (event && event.currentParticipants >= booking.participantsCount) {
+          await this.prisma.event.update({
+            where: { id: booking.eventId },
+            data: {
+              currentParticipants: {
+                decrement: booking.participantsCount,
+              },
+            },
+          });
+        }
       } else if (booking.groupSessionId) {
-        await this.prisma.groupSession.update({
+        const session = await this.prisma.groupSession.findUnique({
           where: { id: booking.groupSessionId },
-          data: {
-            currentParticipants: {
-              decrement: booking.participantsCount,
-            },
-          },
+          select: { currentParticipants: true },
         });
+
+        if (session && session.currentParticipants >= booking.participantsCount) {
+          await this.prisma.groupSession.update({
+            where: { id: booking.groupSessionId },
+            data: {
+              currentParticipants: {
+                decrement: booking.participantsCount,
+              },
+            },
+          });
+        }
       }
 
       // Если запись была оплачена через абонемент, возвращаем средства
@@ -378,34 +392,21 @@ export class BookingsService {
   async getUpcomingUserBookings(userId: string) {
     const now = new Date();
 
+    // Возвращаем только bookings на мастер-классы, не на направления
     return this.prisma.booking.findMany({
       where: {
         userId,
         status: {
           in: ['PENDING', 'CONFIRMED'],
         },
-        OR: [
-          {
-            eventId: {
-              not: null,
-            },
-            event: {
-              startDate: {
-                gte: now,
-              },
-            },
+        eventId: {
+          not: null,
+        },
+        event: {
+          startDate: {
+            gte: now,
           },
-          {
-            groupSessionId: {
-              not: null,
-            },
-            groupSession: {
-              date: {
-                gte: now,
-              },
-            },
-          },
-        ],
+        },
       },
       include: {
         event: {
@@ -415,28 +416,12 @@ export class BookingsService {
             type: true,
           },
         },
-        groupSession: {
-          include: {
-            group: {
-              select: {
-                name: true,
-              },
-            },
-          },
+      },
+      orderBy: {
+        event: {
+          startDate: 'asc',
         },
       },
-      orderBy: [
-        {
-          event: {
-            startDate: 'asc',
-          },
-        },
-        {
-          groupSession: {
-            date: 'asc',
-          },
-        },
-      ],
     });
   }
 }
