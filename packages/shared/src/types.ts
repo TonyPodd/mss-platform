@@ -140,6 +140,9 @@ export interface Booking {
   contactEmail: string;
   createdAt: Date;
   updatedAt: Date;
+  event?: Event; // Опционально включается при запросе
+  groupSession?: GroupSession & { group?: RegularGroup }; // Опционально включается при запросе
+  user?: Partial<User>; // Опционально включается при запросе
 }
 
 // DTO для создания записи на мастер-класс

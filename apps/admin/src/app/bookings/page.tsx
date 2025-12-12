@@ -13,7 +13,8 @@ interface BookingParticipant {
 
 interface BookingWithDetails {
   id: string;
-  eventId: string;
+  eventId?: string;
+  groupSessionId?: string;
   status: string;
   participantsCount: number;
   totalPrice: number;
@@ -22,10 +23,16 @@ interface BookingWithDetails {
   paymentMethod: 'SUBSCRIPTION' | 'ON_SITE';
   notes?: string;
   createdAt: Date;
-  event: {
+  event?: {
     title: string;
     startDate: Date;
     type: string;
+  };
+  groupSession?: {
+    date: Date;
+    group?: {
+      name: string;
+    };
   };
 }
 
@@ -181,9 +188,15 @@ export default function BookingsPage() {
                 <tr key={booking.id}>
                   <td>{formatDate(booking.createdAt)}</td>
                   <td>
-                    <strong>{booking.event.title}</strong>
+                    <strong>
+                      {booking.event
+                        ? booking.event.title
+                        : booking.groupSession
+                          ? `${booking.groupSession.group?.name || 'Направление'}`
+                          : 'Неизвестно'}
+                    </strong>
                   </td>
-                  <td>{formatDate(booking.event.startDate)}</td>
+                  <td>{booking.event ? formatDate(booking.event.startDate) : booking.groupSession ? formatDate(booking.groupSession.date) : '—'}</td>
                   <td>
                     <div className={styles.participants}>
                       {booking.participants.map((participant, idx) => (
