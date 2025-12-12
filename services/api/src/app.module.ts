@@ -16,6 +16,7 @@ import { GroupSessionsModule } from './group-sessions/group-sessions.module';
 import { SubscriptionTypesModule } from './subscription-types/subscription-types.module';
 import { GroupEnrollmentsModule } from './group-enrollments/group-enrollments.module';
 import { TasksModule } from './tasks/tasks.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { TasksModule } from './tasks/tasks.module';
     }),
     ScheduleModule.forRoot(),
     PrismaModule,
+    EmailModule,
     EventsModule,
     MastersModule,
     NewsModule,

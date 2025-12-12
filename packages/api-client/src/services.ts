@@ -179,6 +179,10 @@ export class GroupSessionsService {
     return this.client.get<GroupSession[]>('/group-sessions', { params });
   }
 
+  async getSessionParticipants(id: string): Promise<any> {
+    return this.client.get<any>(`/group-sessions/${id}/participants`);
+  }
+
   async cancelSession(id: string, notes?: string): Promise<GroupSession> {
     return this.client.patch<GroupSession>(`/group-sessions/${id}/cancel`, { notes });
   }

@@ -48,6 +48,13 @@ export class GroupSessionsController {
     return this.groupSessionsService.getAllSessions(start, end);
   }
 
+  @Get(':id/participants')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async getSessionParticipants(@Param('id') id: string) {
+    return this.groupSessionsService.getSessionParticipants(id);
+  }
+
   @Patch(':id/cancel')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)

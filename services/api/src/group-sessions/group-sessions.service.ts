@@ -1,12 +1,16 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { EmailService } from '../email/email.service';
 import { GenerateSessionsDto } from './dto/generate-sessions.dto';
 import { CancelSessionDto } from './dto/cancel-session.dto';
 import { SessionStatus } from '@prisma/client';
 
 @Injectable()
 export class GroupSessionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService,
+  ) {}
 
   async generateSessions(dto: GenerateSessionsDto) {
     const group = await this.prisma.regularGroup.findUnique({
@@ -138,6 +142,9 @@ export class GroupSessionsService {
   async cancelSession(id: string, dto: CancelSessionDto) {
     const session = await this.prisma.groupSession.findUnique({
       where: { id },
+      include: {
+        group: true,
+      },
     });
 
     if (!session) {
@@ -148,13 +155,100 @@ export class GroupSessionsService {
       throw new BadRequestException('Нельзя отменить завершённое занятие');
     }
 
-    return this.prisma.groupSession.update({
+    // Получаем всех активных зачисленных пользователей
+    const enrollments = await this.prisma.groupEnrollment.findMany({
+      where: {
+        groupId: session.groupId,
+        status: 'ACTIVE',
+      },
+      include: {
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    // Обновляем статус занятия
+    const updatedSession = await this.prisma.groupSession.update({
       where: { id },
       data: {
         status: SessionStatus.CANCELLED,
         notes: dto.notes,
       },
     });
+
+    // Отправляем уведомления всем участникам
+    for (const enrollment of enrollments) {
+      try {
+        await this.emailService.sendSessionCancellationEmail(
+          enrollment.user.email,
+          `${enrollment.user.firstName} ${enrollment.user.lastName}`,
+          session.group.name,
+          session.date,
+          dto.notes,
+        );
+      } catch (error) {
+        console.error(
+          `Failed to send cancellation email to ${enrollment.user.email}:`,
+          error,
+        );
+        // Продолжаем отправку остальным, даже если одно письмо не отправилось
+      }
+    }
+
+    return updatedSession;
+  }
+
+  async getSessionParticipants(id: string) {
+    const session = await this.prisma.groupSession.findUnique({
+      where: { id },
+      include: {
+        group: true,
+      },
+    });
+
+    if (!session) {
+      throw new NotFoundException('Занятие не найдено');
+    }
+
+    // Получаем всех активных зачисленных пользователей для этого направления
+    const enrollments = await this.prisma.groupEnrollment.findMany({
+      where: {
+        groupId: session.groupId,
+        status: 'ACTIVE',
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
+        subscription: {
+          select: {
+            id: true,
+            remainingBalance: true,
+            status: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return {
+      session,
+      participants: enrollments,
+      totalParticipants: enrollments.length,
+    };
   }
 
   async deleteSession(id: string) {
