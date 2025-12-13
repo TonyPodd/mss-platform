@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from './providers';
+import { ToastContainer } from '../components/ui/ToastContainer';
 
 export const metadata: Metadata = {
-  title: 'MSS Platform - Мастер-классы и творческие занятия',
-  description: 'Платформа для записи на мастер-классы и творческие занятия',
+  title: 'На заре - Творческое пространство',
+  description: 'Творческое пространство для мастер-классов и направлений',
 };
 
 export default function RootLayout({
@@ -15,7 +16,10 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <ToastContainer />
+        </Providers>
       </body>
     </html>
   );
