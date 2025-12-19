@@ -1,9 +1,13 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class BookingsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService,
+  ) {}
 
   async create(createBookingDto: {
     eventId?: string;
@@ -209,11 +213,15 @@ export class BookingsService {
           select: {
             title: true,
             startDate: true,
+            endDate: true,
             price: true,
+            type: true,
           },
         },
         groupSession: {
-          include: {
+          select: {
+            date: true,
+            duration: true,
             group: {
               select: {
                 name: true,
@@ -244,6 +252,48 @@ export class BookingsService {
           },
         },
       });
+    }
+
+    // Отправляем email подтверждение
+    try {
+      if (booking.event) {
+        // Для мастер-классов отправляем письмо о мастер-классе
+        await this.emailService.sendMasterClassBookingEmail(
+          createBookingDto.contactEmail,
+          {
+            eventTitle: booking.event.title,
+            startDate: booking.event.startDate,
+            endDate: booking.event.endDate,
+            price: booking.event.price,
+            participants: createBookingDto.participants,
+            totalPrice,
+            paymentMethod: createBookingDto.paymentMethod,
+            notes: createBookingDto.notes,
+          },
+        );
+      } else if (booking.groupSession) {
+        // Для занятий направлений вычисляем endDate из date + duration
+        const startDate = new Date(booking.groupSession.date);
+        const endDate = new Date(startDate.getTime() + booking.groupSession.duration * 60 * 1000);
+
+        // Отправляем письмо о занятии направления
+        await this.emailService.sendGroupSessionBookingEmail(
+          createBookingDto.contactEmail,
+          {
+            groupName: booking.groupSession.group.name,
+            startDate,
+            endDate,
+            price: booking.groupSession.group.price,
+            participants: createBookingDto.participants,
+            totalPrice,
+            paymentMethod: createBookingDto.paymentMethod,
+            notes: createBookingDto.notes,
+          },
+        );
+      }
+    } catch (emailError) {
+      // Логируем ошибку, но не прерываем процесс создания записи
+      console.error('Failed to send booking confirmation email:', emailError);
     }
 
     return booking;
@@ -421,6 +471,28 @@ export class BookingsService {
         event: {
           startDate: 'asc',
         },
+      },
+    });
+  }
+
+  async findByEvent(eventId: string) {
+    return this.prisma.booking.findMany({
+      where: {
+        eventId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'asc',
       },
     });
   }

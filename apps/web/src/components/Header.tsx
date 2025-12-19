@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 import styles from './Header.module.css';
 
 export default function Header() {
   const { user, isAuthenticated, logout } = useAuth();
+  const { getTotalItems, clearCart } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
@@ -14,6 +16,7 @@ export default function Header() {
   const toggleProfileMenu = () => setIsProfileMenuOpen(!isProfileMenuOpen);
 
   const handleLogout = () => {
+    clearCart();
     logout();
     setIsProfileMenuOpen(false);
   };
@@ -21,8 +24,9 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        <Link href="/" className={styles.logo}>
-          MSS Platform
+        <Link href="/" className={styles.logoWrapper}>
+          <img src="/logo-na-zare.png" alt="На заре" className={styles.logoImage} />
+          <span className={styles.logoText}>На заре</span>
         </Link>
 
         <nav className={`${styles.nav} ${isMenuOpen ? styles.navOpen : ''}`}>
@@ -41,6 +45,15 @@ export default function Header() {
         </nav>
 
         <div className={styles.authSection}>
+          <Link href="/cart" className={styles.cartLink} aria-label="Корзина">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 2L7 6H3L5 20H19L21 6H17L15 2H9Z" />
+              <circle cx="9" cy="20" r="1" />
+              <circle cx="15" cy="20" r="1" />
+            </svg>
+            {getTotalItems() > 0 && <span className={styles.cartBadge}>{getTotalItems()}</span>}
+          </Link>
+
           {isAuthenticated ? (
             <div className={styles.profileContainer}>
               <button

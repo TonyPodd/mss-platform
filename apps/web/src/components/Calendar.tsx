@@ -86,19 +86,70 @@ export default function Calendar({ events, onEventClick }: CalendarProps) {
       >
         <div className={styles.dayNumber}>{day}</div>
         {hasEvents && (
-          <div className={styles.eventIndicators}>
-            {dayEvents.slice(0, 3).map((event, index) => (
-              <div
-                key={event.id}
-                className={styles.eventDot}
-                style={{ backgroundColor: EVENT_COLORS[event.type] }}
-                title={event.title}
-              />
-            ))}
-            {dayEvents.length > 3 && (
-              <span className={styles.moreEvents}>+{dayEvents.length - 3}</span>
-            )}
-          </div>
+          <>
+            <div className={styles.eventIndicators}>
+              {/* Показываем первое событие как бейдж */}
+              {dayEvents.length > 0 && (() => {
+                const firstEvent = dayEvents[0];
+                const eventTime = new Date(firstEvent.startDate).toLocaleTimeString('ru-RU', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                });
+                const availableSeats = firstEvent.maxParticipants - firstEvent.currentParticipants;
+                const isLowSeats = availableSeats <= 3 && availableSeats > 0;
+
+                return (
+                  <div
+                    className={`${styles.eventBadge} ${isLowSeats ? styles.lowSeats : ''}`}
+                    style={{ backgroundColor: EVENT_COLORS[firstEvent.type] }}
+                  >
+                    {eventTime} {firstEvent.title.length > 10 ? firstEvent.title.substring(0, 10) + '...' : firstEvent.title}
+                  </div>
+                );
+              })()}
+
+              {/* Показываем количество оставшихся событий */}
+              {dayEvents.length > 1 && (
+                <div className={styles.eventCount}>
+                  <span
+                    className={styles.eventCountBadge}
+                    style={{ backgroundColor: EVENT_COLORS[dayEvents[1].type] }}
+                  >
+                    {dayEvents.length - 1}
+                  </span>
+                  <span>ещё {dayEvents.length - 1}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Тултип при наведении (desktop) */}
+            <div className={styles.eventTooltip}>
+              {dayEvents.slice(0, 2).map((event) => {
+                const eventTime = new Date(event.startDate).toLocaleTimeString('ru-RU', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                });
+                const availableSeats = event.maxParticipants - event.currentParticipants;
+
+                return (
+                  <div key={event.id} className={styles.tooltipEvent}>
+                    <div className={styles.tooltipEventTitle}>{event.title}</div>
+                    <div className={styles.tooltipEventTime}>{eventTime}</div>
+                    {availableSeats <= 3 && availableSeats > 0 && (
+                      <div className={styles.tooltipEventSeats}>
+                        Осталось {availableSeats} {availableSeats === 1 ? 'место' : 'места'}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              {dayEvents.length > 2 && (
+                <div className={styles.tooltipEvent}>
+                  <div className={styles.tooltipEventTitle}>+{dayEvents.length - 2} ещё</div>
+                </div>
+              )}
+            </div>
+          </>
         )}
       </div>
     );
