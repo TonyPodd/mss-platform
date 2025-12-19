@@ -103,7 +103,7 @@ export default function Calendar({ events, onEventClick }: CalendarProps) {
                     className={`${styles.eventBadge} ${isLowSeats ? styles.lowSeats : ''}`}
                     style={{ backgroundColor: EVENT_COLORS[firstEvent.type] }}
                   >
-                    {eventTime} {firstEvent.title.length > 10 ? firstEvent.title.substring(0, 10) + '...' : firstEvent.title}
+                    {eventTime} {firstEvent.title.length > 8 ? firstEvent.title.substring(0, 8) + '...' : firstEvent.title}
                   </div>
                 );
               })()}
