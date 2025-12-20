@@ -140,7 +140,7 @@ nano /etc/nginx/sites-available/mss
 ```nginx
 server {
     listen 80;
-    server_name 155.212.186.64 www.your-domain.ru;
+    server_name 155.212.186.64;
 
     # Web приложение (клиентская часть)
     location / {
