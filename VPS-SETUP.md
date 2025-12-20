@@ -91,7 +91,7 @@ sudo -u postgres psql
 
 # В консоли PostgreSQL выполни:
 CREATE DATABASE mss_production;
-CREATE USER mss_user WITH ENCRYPTED PASSWORD 'твой_сложный_пароль_123';
+CREATE USER mss_user WITH ENCRYPTED PASSWORD 'mssadminpassword1489';
 GRANT ALL PRIVILEGES ON DATABASE mss_production TO mss_user;
 \q
 ```
@@ -140,7 +140,7 @@ nano /etc/nginx/sites-available/mss
 ```nginx
 server {
     listen 80;
-    server_name your-domain.ru www.your-domain.ru;
+    server_name 155.212.186.64 www.your-domain.ru;
 
     # Web приложение (клиентская часть)
     location / {
@@ -232,10 +232,10 @@ nano services/api/.env
 
 ```env
 # Database
-DATABASE_URL="postgresql://mss_user:твой_сложный_пароль_123@localhost:5432/mss_production"
+DATABASE_URL="postgresql://mss_user:mssadminpassword1489@localhost:5432/mss_production"
 
 # JWT
-JWT_SECRET="сгенерируй_случайный_ключ_64_символа"
+JWT_SECRET="b2c0f45831de1614d67ae900cf9655254ded82fa6cd656441b375b141be9cfd8"
 JWT_EXPIRES_IN="7d"
 
 # Server
@@ -243,7 +243,7 @@ PORT=4000
 NODE_ENV=production
 
 # CORS
-CORS_ORIGIN="http://your-domain.ru"
+CORS_ORIGIN="http://155.212.186.64"
 ```
 
 Сохрани: `Ctrl+X`, `Y`, `Enter`
@@ -257,7 +257,7 @@ nano apps/web/.env.production
 Вставь:
 
 ```env
-NEXT_PUBLIC_API_URL=http://your-domain.ru/api
+NEXT_PUBLIC_API_URL=http://155.212.186.64/api
 ```
 
 Сохрани: `Ctrl+X`, `Y`, `Enter`
@@ -271,7 +271,7 @@ nano apps/admin/.env.production
 Вставь:
 
 ```env
-NEXT_PUBLIC_API_URL=http://your-domain.ru/api
+NEXT_PUBLIC_API_URL=http://155.212.186.64/api
 ```
 
 Сохрани: `Ctrl+X`, `Y`, `Enter`
