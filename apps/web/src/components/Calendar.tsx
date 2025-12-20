@@ -87,6 +87,24 @@ export default function Calendar({ events, onEventClick }: CalendarProps) {
         <div className={styles.dayNumber}>{day}</div>
         {hasEvents && (
           <>
+            {/* Точки для мобильных */}
+            <div className={styles.eventDots}>
+              {dayEvents.slice(0, 3).map((event) => (
+                <div
+                  key={event.id}
+                  className={styles.eventDot}
+                  style={{ backgroundColor: EVENT_COLORS[event.type] }}
+                />
+              ))}
+              {dayEvents.length > 3 && (
+                <div
+                  className={styles.eventDot}
+                  style={{ backgroundColor: '#8b7355' }}
+                />
+              )}
+            </div>
+
+            {/* Бейджи для desktop */}
             <div className={styles.eventIndicators}>
               {/* Показываем первое событие как бейдж */}
               {dayEvents.length > 0 && (() => {

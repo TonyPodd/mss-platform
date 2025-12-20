@@ -187,6 +187,21 @@
   max-width: 100%;
 }
 
+.eventDots {
+  display: none;
+  flex-direction: row;
+  gap: 0.25rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.eventDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
 .eventBadge {
   font-size: 0.6875rem;
   padding: 0.125rem 0.375rem;
@@ -429,24 +444,18 @@
     font-size: 0.875rem;
   }
 
+  /* На мобильных показываем точки вместо бейджей */
   .eventIndicators {
-    gap: 0.1875rem;
+    display: none;
   }
 
-  .eventBadge {
-    font-size: 0.5625rem;
-    padding: 0.0625rem 0.25rem;
+  .eventDots {
+    display: flex;
   }
 
-  .eventCount {
-    font-size: 0.5625rem;
-    padding: 0.0625rem 0.25rem;
-  }
-
-  .eventCountBadge {
-    width: 14px;
-    height: 14px;
-    font-size: 0.5625rem;
+  .eventDot {
+    width: 7px;
+    height: 7px;
   }
 
   /* Скрываем тултип на мобильных */
@@ -536,24 +545,9 @@
     font-size: 0.75rem;
   }
 
-  .eventIndicators {
-    gap: 0.125rem;
-  }
-
-  .eventBadge {
-    font-size: 0.5rem;
-    padding: 0.0625rem 0.1875rem;
-  }
-
-  .eventCount {
-    font-size: 0.5rem;
-    padding: 0.0625rem 0.1875rem;
-  }
-
-  .eventCountBadge {
-    width: 12px;
-    height: 12px;
-    font-size: 0.5rem;
+  .eventDot {
+    width: 6px;
+    height: 6px;
   }
 
   .selectedDayEvents {
