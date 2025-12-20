@@ -142,27 +142,27 @@ export default function EnrollmentForm({ group, onClose }: EnrollmentFormProps) 
           <h3>{group.name}</h3>
         </div>
 
-        <div className={styles.enrollmentInfo}>
-          <div className={styles.infoItem}>
-            <span className={styles.icon}>📅</span>
-            <div>
-              <strong>Расписание:</strong>
-              <p>{formatSchedule(group.schedule)}</p>
-            </div>
-          </div>
-          <div className={styles.infoItem}>
-            <span className={styles.icon}>💰</span>
-            <div>
-              <strong>Стоимость:</strong>
-              <p>{group.price} ₽ за занятие</p>
-            </div>
-          </div>
-          <div className={styles.noteBox}>
-            <strong>Важно:</strong> Вы записываетесь на все занятия по расписанию, а не на одно занятие.
-          </div>
-        </div>
-
         <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.formContent}>
+            <div className={styles.enrollmentInfo}>
+              <div className={styles.infoItem}>
+                <span className={styles.icon}>📅</span>
+                <div>
+                  <strong>Расписание:</strong>
+                  <p>{formatSchedule(group.schedule)}</p>
+                </div>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.icon}>💰</span>
+                <div>
+                  <strong>Стоимость:</strong>
+                  <p>{group.price} ₽ за занятие</p>
+                </div>
+              </div>
+              <div className={styles.noteBox}>
+                <strong>Важно:</strong> Вы записываетесь на все занятия по расписанию, а не на одно занятие.
+              </div>
+            </div>
           {!isAuthenticated ? (
             <div className={styles.warningBox}>
               <p>⚠️ Необходимо войти в аккаунт</p>
@@ -233,6 +233,7 @@ export default function EnrollmentForm({ group, onClose }: EnrollmentFormProps) 
           </div>
 
           {error && <div className={styles.error}>{error}</div>}
+          </div>
 
           <div className={styles.actions}>
             <button type="button" onClick={onClose} className={styles.cancelButton}>
