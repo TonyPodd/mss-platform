@@ -93,7 +93,7 @@ export default function GroupsPage() {
                 Присоединяйтесь к нашим группам и развивайте свои творческие навыки!
               </p>
               <div className={styles.heroNote}>
-                💡 Это постоянные занятия, а не разовые мастер-классы
+                ℹ️ Это постоянные занятия, а не разовые мастер-классы
               </div>
             </div>
           </section>
@@ -128,25 +128,21 @@ export default function GroupsPage() {
                         <p className={styles.groupShort}>{group.shortDescription}</p>
 
                         <div className={styles.scheduleHighlight}>
-                          <div className={styles.scheduleIcon}>📅</div>
-                          <div className={styles.scheduleInfo}>
-                            <div className={styles.scheduleLabel}>Расписание занятий</div>
-                            <div className={styles.scheduleText}>{formatSchedule(group.schedule)}</div>
+                          <div className={styles.scheduleRow}>
+                            <strong>📅 Расписание:</strong>
+                            <span>{formatSchedule(group.schedule)}</span>
                           </div>
+                          <a href="/calendar" className={styles.scheduleLink}>
+                            → Открыть в календаре
+                          </a>
                         </div>
 
                         <div className={styles.groupDetails}>
                           <div className={styles.detailItem}>
-                            <span className={styles.detailIcon}>👥</span>
-                            <span className={styles.detailText}>
-                              До {group.maxParticipants} человек в группе
-                            </span>
+                            <span>До {group.maxParticipants} человек</span>
                           </div>
                           <div className={styles.detailItem}>
-                            <span className={styles.detailIcon}>💰</span>
-                            <span className={styles.detailText}>
-                              {group.price} ₽ за одно занятие
-                            </span>
+                            <span className={styles.detailText}>{group.price} ₽/занятие</span>
                           </div>
                         </div>
 
@@ -162,10 +158,10 @@ export default function GroupsPage() {
                                 onClick={() => handleEnroll(group)}
                                 className={styles.primaryButton}
                               >
-                                Записаться на направление
+                                Записаться
                               </button>
                               <a href="/calendar" className={styles.secondaryButton}>
-                                Смотреть все занятия
+                                Расписание
                               </a>
                             </>
                           ) : (
