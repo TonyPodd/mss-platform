@@ -195,17 +195,25 @@ export interface Order {
   userId: string;
   items: OrderItem[];
   totalAmount: number;
-  status: 'pending' | 'paid' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  shippingAddress: Address;
-  paymentMethod: string;
+  status: 'PENDING' | 'CONFIRMED' | 'READY' | 'COMPLETED' | 'CANCELLED';
+  paymentMethod: PaymentMethod;
   createdAt: Date;
   updatedAt: Date;
+  user?: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
 }
 
 export interface OrderItem {
+  id: string;
   productId: string;
   quantity: number;
-  priceAtTime: number;
+  price: number;
+  product?: {
+    name: string;
+  };
 }
 
 export interface Address {

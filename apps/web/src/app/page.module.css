@@ -3,60 +3,48 @@
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 2rem;
 }
 
 .hero {
   text-align: center;
-  padding: 5rem 1.5rem 4rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 3.5rem 2rem;
+  background: linear-gradient(135deg, #fef8f3 0%, #f7ebe1 100%);
   margin: 0 -1.5rem 3rem;
-  color: white;
-  border-radius: 0 0 20px 20px;
+  border-radius: 0 0 24px 24px;
   position: relative;
   overflow: hidden;
-}
-
-.hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="rgba(255,255,255,0.05)"/></svg>') no-repeat bottom;
-  background-size: cover;
-  opacity: 0.5;
+  border-bottom: 1px solid rgba(139, 115, 85, 0.15);
 }
 
 .heroContent {
-  position: relative;
-  z-index: 1;
-  max-width: 800px;
+  max-width: 700px;
   margin: 0 auto;
 }
 
 .hero h1 {
-  font-size: 3rem;
-  margin-bottom: 1.25rem;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
   font-weight: 700;
   line-height: 1.2;
+  color: #5a4a42;
 }
 
 .hero p {
-  font-size: 1.25rem;
-  opacity: 0.95;
+  font-size: 1.15rem;
+  color: #8b7355;
   margin-bottom: 2rem;
   line-height: 1.6;
+  font-weight: 500;
 }
 
 .heroButtons {
   display: flex;
   gap: 1rem;
-  justify-content: center;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .heroPrimary,
@@ -66,39 +54,41 @@
   font-weight: 600;
   text-decoration: none;
   transition: all 0.3s ease;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
 }
 
 .heroPrimary {
-  background: white;
-  color: #667eea;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  background: #8b7355;
+  color: white;
+  box-shadow: 0 4px 12px rgba(139, 115, 85, 0.2);
 }
 
 .heroPrimary:hover {
+  background: #a08060;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 16px rgba(139, 115, 85, 0.3);
 }
 
 .heroSecondary {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 2px solid white;
-  backdrop-filter: blur(10px);
+  background: white;
+  color: #5a4a42;
+  border: 2px solid rgba(139, 115, 85, 0.25);
 }
 
 .heroSecondary:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(139, 115, 85, 0.06);
+  border-color: #a08060;
   transform: translateY(-2px);
+  color: #8b7355;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 640px) {
   .hero {
-    padding: 3rem 1.5rem 2.5rem;
+    padding: 2.5rem 1.5rem;
   }
 
   .hero h1 {
-    font-size: 2rem;
+    font-size: 1.875rem;
   }
 
   .hero p {

@@ -34,7 +34,7 @@ export default function NewsSlider({ news }: NewsSliderProps) {
       >
         {news.map((item) => (
           <SwiperSlide key={item.id}>
-            <div className={styles.slide}>
+            <div className={`${styles.slide} ${!item.imageUrl ? styles.slideNoImage : ''}`}>
               {item.imageUrl && (
                 <div
                   className={styles.slideImage}

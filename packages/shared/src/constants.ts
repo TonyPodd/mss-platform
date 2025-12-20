@@ -39,12 +39,15 @@ export const API_ROUTES = {
   PRODUCTS: {
     LIST: '/products',
     BY_ID: (id: string) => `/products/${id}`,
+    AVAILABLE: '/products/available',
     CATEGORIES: '/products/categories',
   },
   ORDERS: {
     CREATE: '/orders',
     LIST: '/orders',
     BY_ID: (id: string) => `/orders/${id}`,
+    MY_ORDERS: (userId: string) => `/orders/user/${userId}`,
+    QR_CODE: (id: string) => `/orders/${id}/qrcode`,
   },
   NEWS: {
     LIST: '/news',

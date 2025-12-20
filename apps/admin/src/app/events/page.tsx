@@ -6,9 +6,29 @@ import { apiClient } from '../../lib/api';
 import { Event } from '@mss/shared';
 import styles from './events.module.css';
 
+interface Booking {
+  id: string;
+  participantsCount: number;
+  totalPrice: number;
+  status: string;
+  paymentMethod: string;
+  participants: Array<{ fullName: string; phone: string; age?: number }>;
+  contactEmail: string;
+  createdAt: Date;
+  user?: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  };
+}
+
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loadingBookings, setLoadingBookings] = useState(false);
 
   useEffect(() => {
     loadEvents();
@@ -49,6 +69,36 @@ export default function EventsPage() {
     }
   };
 
+  const loadBookings = async (eventId: string) => {
+    setLoadingBookings(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${apiUrl}/bookings/event/${eventId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      setBookings(data);
+    } catch (error) {
+      console.error('Error loading bookings:', error);
+      alert('Ошибка загрузки списка участников');
+    } finally {
+      setLoadingBookings(false);
+    }
+  };
+
+  const handleViewParticipants = async (event: Event) => {
+    setSelectedEvent(event);
+    await loadBookings(event.id);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedEvent(null);
+    setBookings([]);
+  };
+
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('ru-RU', {
       day: '2-digit',
@@ -57,6 +107,20 @@ export default function EventsPage() {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  const getStatusLabel = (status: string) => {
+    const statusMap: Record<string, string> = {
+      PENDING: 'Ожидает',
+      CONFIRMED: 'Подтвержден',
+      CANCELLED: 'Отменен',
+      ATTENDED: 'Посетил',
+    };
+    return statusMap[status] || status;
+  };
+
+  const getPaymentMethodLabel = (method: string) => {
+    return method === 'SUBSCRIPTION' ? 'Абонемент' : 'На месте';
   };
 
   if (loading) {
@@ -119,6 +183,14 @@ export default function EventsPage() {
                         Опубликовать
                       </button>
                     )}
+                    {event.currentParticipants > 0 && (
+                      <button
+                        onClick={() => handleViewParticipants(event)}
+                        className={styles.viewBtn}
+                      >
+                        Участники
+                      </button>
+                    )}
                     <Link href={`/events/${event.id}/edit`} className={styles.editBtn}>
                       Редактировать
                     </Link>
@@ -138,6 +210,100 @@ export default function EventsPage() {
           </div>
         )}
       </div>
+
+      {selectedEvent && (
+        <div className={styles.modal} onClick={handleCloseModal}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>Участники: {selectedEvent.title}</h2>
+              <button onClick={handleCloseModal} className={styles.closeButton}>
+                ×
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              {loadingBookings ? (
+                <div className={styles.modalLoading}>Загрузка...</div>
+              ) : bookings.length === 0 ? (
+                <div className={styles.modalEmpty}>Записей пока нет</div>
+              ) : (
+                <>
+                  <div className={styles.bookingsStats}>
+                    <p>Всего записей: {bookings.length}</p>
+                    <p>
+                      Всего участников:{' '}
+                      {bookings.reduce((sum, b) => sum + b.participantsCount, 0)}
+                    </p>
+                    <p>
+                      Общая сумма:{' '}
+                      {bookings.reduce((sum, b) => sum + b.totalPrice, 0).toFixed(2)} ₽
+                    </p>
+                  </div>
+
+                  <div className={styles.bookingsList}>
+                    {bookings.map((booking, index) => (
+                      <div key={booking.id} className={styles.bookingCard}>
+                        <div className={styles.bookingHeader}>
+                          <span className={styles.bookingNumber}>Запись #{index + 1}</span>
+                          <span
+                            className={`${styles.bookingStatus} ${
+                              styles[booking.status]
+                            }`}
+                          >
+                            {getStatusLabel(booking.status)}
+                          </span>
+                        </div>
+
+                        <div className={styles.bookingInfo}>
+                          {booking.user && (
+                            <p>
+                              <strong>Пользователь:</strong> {booking.user.firstName}{' '}
+                              {booking.user.lastName}
+                            </p>
+                          )}
+                          <p>
+                            <strong>Email:</strong>{' '}
+                            {booking.user?.email || booking.contactEmail}
+                          </p>
+                          {booking.user?.phone && (
+                            <p>
+                              <strong>Телефон:</strong> {booking.user.phone}
+                            </p>
+                          )}
+                          <p>
+                            <strong>Способ оплаты:</strong>{' '}
+                            {getPaymentMethodLabel(booking.paymentMethod)}
+                          </p>
+                          <p>
+                            <strong>Сумма:</strong> {booking.totalPrice.toFixed(2)} ₽
+                          </p>
+                          <p>
+                            <strong>Дата записи:</strong> {formatDate(booking.createdAt)}
+                          </p>
+                        </div>
+
+                        {booking.participants.length > 0 && (
+                          <div className={styles.participants}>
+                            <strong>
+                              Участники ({booking.participants.length}):
+                            </strong>
+                            {booking.participants.map((participant, idx) => (
+                              <div key={idx} className={styles.participant}>
+                                <span>{participant.fullName}</span>
+                                <span>{participant.phone}</span>
+                                {participant.age && <span>{participant.age} лет</span>}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

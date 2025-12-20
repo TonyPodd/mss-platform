@@ -50,6 +50,11 @@ export class BookingsController {
     return this.bookingsService.findAll();
   }
 
+  @Get('event/:eventId')
+  findByEvent(@Param('eventId') eventId: string) {
+    return this.bookingsService.findByEvent(eventId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.bookingsService.findOne(id);

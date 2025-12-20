@@ -65,3 +65,14 @@ export function getPhoneValidationError(phone: string): string | null {
 
   return null;
 }
+
+/**
+ * Валидация email адреса
+ */
+export function validateEmail(email: string): boolean {
+  if (!email) return false;
+
+  // Простая регулярка для email
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailPattern.test(email.trim());
+}

@@ -14,7 +14,10 @@ async function bootstrap() {
   });
 
   // Enable CORS
-  app.enableCors();
+  app.enableCors({
+    origin: true, // Разрешить все origins для разработки
+    credentials: true,
+  });
 
   // Global validation pipe
   app.useGlobalPipes(

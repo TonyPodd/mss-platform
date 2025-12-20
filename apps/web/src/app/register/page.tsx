@@ -53,7 +53,7 @@ export default function RegisterPage() {
         age: formData.age ? parseInt(formData.age) : undefined,
         phone: formData.phone || undefined,
       });
-      router.push('/');
+      window.location.href = '/';
     } catch (err: any) {
       setError(err.message || 'Произошла ошибка при регистрации');
     } finally {
@@ -63,16 +63,27 @@ export default function RegisterPage() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.formWrapper}>
-        <h1 className={styles.title}>Регистрация</h1>
+      {/* Левая часть - Визуал */}
+      <div className={styles.leftSide}>
+        <div className={styles.visualContent}>
+          <img src="/logo-na-zare.png" alt="На заре" className={styles.logoImage} />
+        </div>
+      </div>
 
-        {error && (
-          <div className={styles.error}>
-            {error}
-          </div>
-        )}
+      {/* Правая часть - Форма */}
+      <div className={styles.rightSide}>
+        <div className={styles.formWrapper}>
+          <div className={styles.formContent}>
+            <h1 className={styles.title}>Создайте аккаунт</h1>
+            <p className={styles.subtitle}>Присоединяйтесь к нашему творческому сообществу</p>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
+            {error && (
+              <div className={styles.error}>
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label htmlFor="firstName" className={styles.label}>
@@ -198,6 +209,10 @@ export default function RegisterPage() {
           </button>
         </form>
 
+        <div className={styles.divider}>
+          <span>или</span>
+        </div>
+
         <div className={styles.links}>
           <p>
             Уже есть аккаунт?{' '}
@@ -205,6 +220,8 @@ export default function RegisterPage() {
               Войти
             </Link>
           </p>
+        </div>
+          </div>
         </div>
       </div>
     </div>

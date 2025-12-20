@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { apiClient } from '../../lib/api';
-import { Subscription, Booking, SubscriptionType, GroupEnrollment } from '@mss/shared';
+import { Subscription, Booking, SubscriptionType, GroupEnrollment, Order, PaymentMethod } from '@mss/shared';
 import Header from '../../components/Header';
 import styles from './profile.module.css';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading, refreshUser, activeSubscription } = useAuth();
+  const { user, isAuthenticated, isLoading, refreshUser, activeSubscription, refreshSubscription } = useAuth();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([]);
@@ -27,7 +27,9 @@ export default function ProfilePage() {
     age: '',
   });
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'subscriptions' | 'bookings' | 'upcoming' | 'enrollments'>('upcoming');
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [selectedOrderQR, setSelectedOrderQR] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'subscriptions' | 'bookings' | 'upcoming' | 'enrollments' | 'orders'>('upcoming');
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [subscriptionTypes, setSubscriptionTypes] = useState<SubscriptionType[]>([]);
   const [purchasing, setPurchasing] = useState<string | null>(null);
@@ -57,16 +59,18 @@ export default function ProfilePage() {
 
   const loadData = async () => {
     try {
-      const [subs, bookingHistory, upcoming, myEnrollments] = await Promise.all([
+      const [subs, bookingHistory, upcoming, myEnrollments, myOrders] = await Promise.all([
         apiClient.users.getSubscriptions(),
         apiClient.users.getBookingHistory(),
         apiClient.bookings.getMyUpcoming(),
         apiClient.groupEnrollments.getMyEnrollments(),
+        user ? apiClient.orders.getMyOrders(user.id) : Promise.resolve([]),
       ]);
       setSubscriptions(subs);
       setBookings(bookingHistory);
       setUpcomingBookings(upcoming);
       setEnrollments(myEnrollments);
+      setOrders(myOrders);
     } catch (error) {
       console.error('Ошибка при загрузке данных:', error);
     } finally {
@@ -160,6 +164,7 @@ export default function ProfilePage() {
       await apiClient.users.purchaseSubscription(typeId);
       alert('Абонемент успешно приобретён!');
       await loadData();
+      await refreshSubscription();
       setShowPurchaseModal(false);
     } catch (error: any) {
       console.error('Ошибка покупки абонемента:', error);
@@ -201,11 +206,17 @@ export default function ProfilePage() {
       await apiClient.bookings.cancel(bookingId);
       alert('Запись успешно отменена');
       await loadData();
+      // Обновляем список занятий для открытого направления
+      if (expandedEnrollment) {
+        const sessions = await apiClient.groupEnrollments.getUpcomingSessions(expandedEnrollment);
+        setEnrollmentSessions(prev => ({ ...prev, [expandedEnrollment]: sessions }));
+      }
     } catch (error: any) {
       console.error('Ошибка отмены записи:', error);
       alert(error.response?.data?.message || 'Не удалось отменить запись');
     }
   };
+
 
   const formatDateTime = (date: string | Date | undefined) => {
     if (!date) return 'Не указано';
@@ -269,6 +280,25 @@ export default function ProfilePage() {
           <div className={styles.userInfo}>
             <h1 className={styles.userName}>{user.firstName} {user.lastName}</h1>
             <p className={styles.userEmail}>{user.email}</p>
+            <div className={styles.profileStats}>
+              {activeSubscription ? (
+                <>
+                  <span className={`${styles.statChip} ${styles.active}`}>
+                    ✓ Абонемент активен
+                  </span>
+                  <span className={styles.statChip}>
+                    💳 {activeSubscription.remainingBalance.toFixed(0)} ₽
+                  </span>
+                  <span className={styles.statChip}>
+                    🎁 Скидка 10%
+                  </span>
+                </>
+              ) : (
+                <span className={styles.statChip}>
+                  Нет активного абонемента
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -347,23 +377,15 @@ export default function ProfilePage() {
               ) : (
                 <div className={styles.profileInfo}>
                   <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Имя:</span>
-                    <span className={styles.infoValue}>{user.firstName}</span>
+                    <span className={styles.infoLabel}>Email</span>
+                    <span className={`${styles.infoValue} ${styles.verified}`}>{user.email}</span>
                   </div>
                   <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Фамилия:</span>
-                    <span className={styles.infoValue}>{user.lastName}</span>
-                  </div>
-                  <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Email:</span>
-                    <span className={styles.infoValue}>{user.email}</span>
-                  </div>
-                  <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Телефон:</span>
+                    <span className={styles.infoLabel}>Телефон</span>
                     <span className={styles.infoValue}>{user.phone || 'Не указан'}</span>
                   </div>
                   <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Возраст:</span>
+                    <span className={styles.infoLabel}>Возраст</span>
                     <span className={styles.infoValue}>{user.age || 'Не указан'}</span>
                   </div>
                 </div>
@@ -378,25 +400,36 @@ export default function ProfilePage() {
                 className={`${styles.tab} ${activeTab === 'upcoming' ? styles.tabActive : ''}`}
                 onClick={() => setActiveTab('upcoming')}
               >
-                Предстоящие занятия ({upcomingBookings.length})
+                Предстоящие
+                <span className={styles.tabBadge}>{upcomingBookings.length}</span>
               </button>
               <button
                 className={`${styles.tab} ${activeTab === 'subscriptions' ? styles.tabActive : ''}`}
                 onClick={() => setActiveTab('subscriptions')}
               >
-                Абонементы ({subscriptions.length})
+                Абонемент
+                <span className={styles.tabBadge}>{subscriptions.length}</span>
               </button>
               <button
                 className={`${styles.tab} ${activeTab === 'enrollments' ? styles.tabActive : ''}`}
                 onClick={() => setActiveTab('enrollments')}
               >
-                Мои направления ({enrollments.filter(e => e.status === 'ACTIVE').length})
+                Направления
+                <span className={styles.tabBadge}>{enrollments.filter(e => e.status === 'ACTIVE').length}</span>
               </button>
               <button
                 className={`${styles.tab} ${activeTab === 'bookings' ? styles.tabActive : ''}`}
                 onClick={() => setActiveTab('bookings')}
               >
-                История записей ({bookings.length})
+                История
+                <span className={styles.tabBadge}>{bookings.length}</span>
+              </button>
+              <button
+                className={`${styles.tab} ${activeTab === 'orders' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('orders')}
+              >
+                Заказы
+                <span className={styles.tabBadge}>{orders.length}</span>
               </button>
             </div>
 
@@ -492,23 +525,29 @@ export default function ProfilePage() {
                       <p>У вас пока нет записей на мастер-классы</p>
                     </div>
                   ) : (
-                    bookings.map((booking) => (
-                      <div key={booking.id} className={styles.listCard}>
-                        <div className={styles.listCardHeader}>
-                          <div>
-                            <h3 className={styles.listCardTitle}>Запись на мастер-класс</h3>
-                            <p className={styles.listCardSubtitle}>
-                              {booking.participantsCount} участник(ов) •
-                              {booking.paymentMethod === 'SUBSCRIPTION' ? ' Абонемент' : ' Оплата на месте'}
-                            </p>
+                    bookings.map((booking) => {
+                      const eventTitle = booking.event?.title || booking.groupSession?.group?.name || 'Занятие';
+                      const eventDate = booking.event?.startDate || booking.groupSession?.date;
+
+                      return (
+                        <div key={booking.id} className={styles.listCard}>
+                          <div className={styles.listCardHeader}>
+                            <div>
+                              <h3 className={styles.listCardTitle}>{eventTitle}</h3>
+                              <p className={styles.listCardSubtitle}>
+                                {eventDate ? formatDateTime(eventDate) : formatDate(booking.createdAt)} •
+                                {booking.participantsCount} участник(ов) •
+                                {booking.paymentMethod === 'SUBSCRIPTION' ? ' Абонемент' : ' Оплата на месте'}
+                              </p>
+                            </div>
+                            {getBookingStatusBadge(booking.status)}
                           </div>
-                          {getBookingStatusBadge(booking.status)}
+                          <div className={styles.listCardFooter}>
+                            <span>Записались: {formatDate(booking.createdAt)}</span>
+                          </div>
                         </div>
-                        <div className={styles.listCardFooter}>
-                          <span>Дата записи: {formatDate(booking.createdAt)}</span>
-                        </div>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               )}
@@ -572,30 +611,24 @@ export default function ProfilePage() {
                                         {formatDateTime(session.date)}
                                       </div>
                                       <div className={styles.sessionDetails}>
-                                        {session.duration} минут • {session.currentParticipants} участников
+                                        {session.duration} минут • {session.currentParticipants}/{session.maxParticipants} участников
                                       </div>
                                     </div>
                                     <div className={styles.sessionStatus}>
-                                      {session.booking ? (
-                                        <>
-                                          <span className={styles.bookingStatus}>
-                                            {session.booking.status === 'CANCELLED'
-                                              ? '✗ Отменено'
-                                              : session.booking.status === 'PENDING'
-                                              ? '⏳ Ожидает оплаты'
-                                              : '✓ Подтверждено'}
-                                          </span>
-                                          {session.booking.status !== 'CANCELLED' && (
-                                            <button
-                                              onClick={() => handleCancelBooking(session.booking.id)}
-                                              className={styles.cancelSessionButton}
-                                            >
-                                              Отменить
-                                            </button>
-                                          )}
-                                        </>
-                                      ) : (
-                                        <span className={styles.noBooking}>Вы можете посетить это занятие</span>
+                                      <span className={styles.bookingStatus}>
+                                        {session.booking?.status === 'CANCELLED'
+                                          ? '✗ Отменено'
+                                          : session.booking?.status === 'PENDING'
+                                          ? '⏳ Ожидает'
+                                          : '✓ Записаны'}
+                                      </span>
+                                      {session.booking && session.booking.status !== 'CANCELLED' && session.booking.status !== 'COMPLETED' && (
+                                        <button
+                                          onClick={() => handleCancelBooking(session.booking.id)}
+                                          className={styles.cancelSessionButton}
+                                        >
+                                          Отменить
+                                        </button>
                                       )}
                                     </div>
                                   </div>
@@ -608,17 +641,110 @@ export default function ProfilePage() {
                   )}
                 </div>
               )}
+
+              {activeTab === 'orders' && (
+                <div className={styles.ordersList}>
+                  {orders.length === 0 ? (
+                    <div className={styles.emptyState}>
+                      <div className={styles.emptyIcon}>🛍️</div>
+                      <p>У вас пока нет заказов</p>
+                    </div>
+                  ) : (
+                    orders.map((order: any) => {
+                      const getOrderStatusBadge = (status: string) => {
+                        const statusMap: Record<string, { label: string; className: string }> = {
+                          PENDING: { label: 'Ожидает', className: styles.orderPending },
+                          CONFIRMED: { label: 'Подтвержден', className: styles.orderConfirmed },
+                          READY: { label: 'Готов к выдаче', className: styles.orderReady },
+                          COMPLETED: { label: 'Выдан', className: styles.orderCompleted },
+                          CANCELLED: { label: 'Отменен', className: styles.orderCancelled },
+                        };
+                        const statusInfo = statusMap[status] || { label: status, className: '' };
+                        return <span className={`${styles.statusBadge} ${statusInfo.className}`}>{statusInfo.label}</span>;
+                      };
+
+                      return (
+                        <div key={order.id} className={styles.listCard}>
+                          <div className={styles.listCardHeader}>
+                            <div>
+                              <h3 className={styles.listCardTitle}>
+                                Заказ от {formatDate(order.createdAt)}
+                              </h3>
+                              <p className={styles.listCardSubtitle}>
+                                Товаров: {order.items?.length || 0} • Сумма: {order.totalAmount} ₽
+                              </p>
+                              <div className={styles.orderItems}>
+                                {order.items?.map((item: any) => (
+                                  <div key={item.id} className={styles.orderItem}>
+                                    {item.product?.name} × {item.quantity} = {item.price * item.quantity} ₽
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            {getOrderStatusBadge(order.status)}
+                          </div>
+                          <div className={styles.listCardFooter}>
+                            <span>
+                              {order.status === 'PENDING' && 'Заказ принят, ожидает подтверждения'}
+                              {order.status === 'CONFIRMED' && 'Заказ подтвержден, готовится'}
+                              {order.status === 'READY' && 'Заказ готов к выдаче. Покажите QR-код'}
+                              {order.status === 'COMPLETED' && 'Заказ выдан'}
+                            </span>
+                            {(order.status === 'READY' || order.status === 'CONFIRMED') && (
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    const { qrCode } = await apiClient.orders.getQRCode(order.id);
+                                    setSelectedOrderQR(qrCode);
+                                  } catch (error) {
+                                    console.error('Ошибка загрузки QR-кода:', error);
+                                    alert('Не удалось загрузить QR-код');
+                                  }
+                                }}
+                                className={styles.viewQRButton}
+                              >
+                                Показать QR-код
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
       </div>
 
+      {selectedOrderQR && (
+        <div className={styles.modalOverlay} onClick={() => setSelectedOrderQR(null)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>QR-код для получения заказа</h2>
+              <button className={styles.modalClose} onClick={() => setSelectedOrderQR(null)}>
+                ×
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              <p className={styles.qrInfo}>
+                Покажите этот QR-код администратору для получения заказа
+              </p>
+              <div className={styles.qrCodeContainer}>
+                <img src={selectedOrderQR} alt="QR код заказа" className={styles.qrCodeImage} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showPurchaseModal && (
         <div className={styles.modalOverlay} onClick={() => setShowPurchaseModal(false)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h2>Выберите абонемент</h2>
+              <h2>Приобрести абонемент</h2>
               <button className={styles.modalClose} onClick={() => setShowPurchaseModal(false)}>
                 ×
               </button>
@@ -626,35 +752,54 @@ export default function ProfilePage() {
 
             <div className={styles.modalBody}>
               {subscriptionTypes.length === 0 ? (
-                <p>Нет доступных абонементов</p>
-              ) : (
-                <div className={styles.subscriptionTypesGrid}>
-                  {subscriptionTypes.map((type) => (
-                    <div key={type.id} className={styles.typeCard}>
-                      <h3 className={styles.typeName}>{type.name}</h3>
-                      <div className={styles.typePrice}>{type.price} ₽</div>
-                      <p className={styles.typeDescription}>{type.description}</p>
-                      <div className={styles.typeFeatures}>
-                        <div className={styles.typeFeature}>
-                          💳 Баланс: {type.amount.toFixed(2)} ₽
-                        </div>
-                        <div className={styles.typeFeature}>
-                          ⏰ {formatDuration(type.durationDays)}
-                        </div>
-                        <div className={styles.typeFeature}>
-                          🎁 Скидка 10% при оплате занятий
-                        </div>
-                      </div>
-                      <button
-                        className={styles.typePurchaseButton}
-                        onClick={() => handlePurchase(type.id)}
-                        disabled={purchasing === type.id}
-                      >
-                        {purchasing === type.id ? 'Покупка...' : 'Купить'}
-                      </button>
-                    </div>
-                  ))}
+                <div className={styles.emptyState}>
+                  <div className={styles.emptyIcon}>💳</div>
+                  <p>В данный момент нет доступных абонементов</p>
                 </div>
+              ) : (
+                <>
+                  <p style={{ marginBottom: '1.5rem', color: '#6b5b52', lineHeight: '1.6' }}>
+                    Абонемент дает вам баланс для оплаты занятий со скидкой 10%.
+                    Выберите подходящий вариант:
+                  </p>
+                  <div className={styles.subscriptionTypesGrid}>
+                    {subscriptionTypes.map((type) => {
+                      const discount = type.amount - type.price;
+                      const discountPercent = ((discount / type.amount) * 100).toFixed(0);
+
+                      return (
+                        <div key={type.id} className={styles.typeCard}>
+                          <h3 className={styles.typeName}>{type.name}</h3>
+                          <div className={styles.typePrice}>{type.price} ₽</div>
+                          {type.description && (
+                            <p className={styles.typeDescription}>{type.description}</p>
+                          )}
+                          <div className={styles.typeFeatures}>
+                            <div className={styles.typeFeature}>
+                              💳 Баланс на счете: {type.amount.toFixed(0)} ₽
+                            </div>
+                            <div className={styles.typeFeature}>
+                              🎁 Экономия: {discount.toFixed(0)} ₽ ({discountPercent}%)
+                            </div>
+                            <div className={styles.typeFeature}>
+                              ⏰ Срок действия: {formatDuration(type.durationDays)}
+                            </div>
+                            <div className={styles.typeFeature}>
+                              ✓ Скидка 10% на все занятия
+                            </div>
+                          </div>
+                          <button
+                            className={styles.typePurchaseButton}
+                            onClick={() => handlePurchase(type.id)}
+                            disabled={purchasing === type.id}
+                          >
+                            {purchasing === type.id ? 'Оформление...' : `Купить за ${type.price} ₽`}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
               )}
             </div>
           </div>

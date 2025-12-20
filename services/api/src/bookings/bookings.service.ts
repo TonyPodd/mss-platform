@@ -367,8 +367,31 @@ export class BookingsService {
   ) {
     const booking = await this.findOne(id);
 
-    // Если отменяем бронирование, освобождаем места
+    // Если отменяем бронирование, проверяем временное ограничение
     if (status === 'CANCELLED' && booking.status !== 'CANCELLED') {
+      const now = new Date();
+      const hoursBeforeEvent = 24;
+      const minCancellationTime = hoursBeforeEvent * 60 * 60 * 1000; // 24 часа в миллисекундах
+
+      // Получаем дату события или занятия
+      let eventDate: Date | null = null;
+
+      if (booking.eventId && booking.event?.startDate) {
+        eventDate = new Date(booking.event.startDate);
+      } else if (booking.groupSessionId && booking.groupSession?.date) {
+        eventDate = new Date(booking.groupSession.date);
+      }
+
+      // Проверяем, что отмена происходит минимум за 24 часа
+      if (eventDate) {
+        const timeUntilEvent = eventDate.getTime() - now.getTime();
+        if (timeUntilEvent < minCancellationTime) {
+          throw new BadRequestException(
+            `Отменить запись можно только за ${hoursBeforeEvent} часов до начала занятия. До занятия осталось ${Math.floor(timeUntilEvent / (60 * 60 * 1000))} часов.`
+          );
+        }
+      }
+
       // Освобождаем места в событии или занятии
       if (booking.eventId) {
         const event = await this.prisma.event.findUnique({

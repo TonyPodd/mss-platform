@@ -235,9 +235,17 @@ export class GroupEnrollmentsService {
 export class ProductsService {
   constructor(private client: ApiClient) {}
 
-  async getList(page = 1, limit = 20): Promise<PaginatedResponse<Product>> {
-    return this.client.get<PaginatedResponse<Product>>(API_ROUTES.PRODUCTS.LIST, {
-      params: { page, limit },
+  async getAll(): Promise<Product[]> {
+    return this.client.get<Product[]>(API_ROUTES.PRODUCTS.LIST);
+  }
+
+  async getAvailable(): Promise<Product[]> {
+    return this.client.get<Product[]>(API_ROUTES.PRODUCTS.AVAILABLE);
+  }
+
+  async getByCategory(category: string): Promise<Product[]> {
+    return this.client.get<Product[]>(API_ROUTES.PRODUCTS.LIST, {
+      params: { category },
     });
   }
 
@@ -246,7 +254,9 @@ export class ProductsService {
   }
 
   async getCategories(): Promise<string[]> {
-    return this.client.get<string[]>(API_ROUTES.PRODUCTS.CATEGORIES);
+    const products = await this.getAll();
+    const categories = [...new Set(products.map(p => p.category))];
+    return categories;
   }
 }
 
@@ -257,8 +267,20 @@ export class OrdersService {
     return this.client.post<Order>(API_ROUTES.ORDERS.CREATE, data);
   }
 
-  async getList(): Promise<Order[]> {
+  async getAll(): Promise<Order[]> {
     return this.client.get<Order[]>(API_ROUTES.ORDERS.LIST);
+  }
+
+  async getMyOrders(userId: string): Promise<Order[]> {
+    return this.client.get<Order[]>(API_ROUTES.ORDERS.MY_ORDERS(userId));
+  }
+
+  async getById(id: string): Promise<Order> {
+    return this.client.get<Order>(API_ROUTES.ORDERS.BY_ID(id));
+  }
+
+  async getQRCode(id: string): Promise<{ qrCode: string }> {
+    return this.client.get<{ qrCode: string }>(API_ROUTES.ORDERS.QR_CODE(id));
   }
 }
 

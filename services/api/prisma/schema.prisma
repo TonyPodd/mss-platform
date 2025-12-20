@@ -254,14 +254,13 @@ model Product {
 
 // Заказы
 model Order {
-  id              String      @id @default(uuid())
-  userId          String
-  totalAmount     Float
-  status          OrderStatus @default(PENDING)
-  shippingAddress Json
-  paymentMethod   String
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id            String        @id @default(uuid())
+  userId        String
+  totalAmount   Float
+  status        OrderStatus   @default(PENDING)
+  paymentMethod PaymentMethod @default(ON_SITE)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   user  User        @relation(fields: [userId], references: [id])
   items OrderItem[]
@@ -271,22 +270,21 @@ model Order {
 
 enum OrderStatus {
   PENDING
-  PAID
-  PROCESSING
-  SHIPPED
-  DELIVERED
+  CONFIRMED
+  READY
+  COMPLETED
   CANCELLED
 }
 
 // Позиции заказа
 model OrderItem {
-  id          String @id @default(uuid())
-  orderId     String
-  productId   String
-  quantity    Int
-  priceAtTime Float
+  id        String @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
 
-  order   Order   @relation(fields: [orderId], references: [id])
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id])
 
   @@map("order_items")

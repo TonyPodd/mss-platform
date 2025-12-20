@@ -30,13 +30,13 @@ export default async function HomePage() {
           <section className={styles.hero}>
             <div className={styles.heroContent}>
               <h1>Творческая студия мастер-классов</h1>
-              <p>Откройте для себя мир творчества! Присоединяйтесь к нашим мастер-классам по рисованию, лепке, декору и многому другому</p>
+              <p>Рисование • Лепка • Декор • Рукоделие</p>
               <div className={styles.heroButtons}>
                 <a href="/calendar" className={styles.heroPrimary}>
-                  Посмотреть календарь
+                  Записаться на занятие
                 </a>
-                <a href="#events" className={styles.heroSecondary}>
-                  Ближайшие мастер-классы
+                <a href="/groups" className={styles.heroSecondary}>
+                  Все направления
                 </a>
               </div>
             </div>

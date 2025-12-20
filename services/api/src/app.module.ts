@@ -17,6 +17,8 @@ import { SubscriptionTypesModule } from './subscription-types/subscription-types
 import { GroupEnrollmentsModule } from './group-enrollments/group-enrollments.module';
 import { TasksModule } from './tasks/tasks.module';
 import { EmailModule } from './email/email.module';
+import { ProductsModule } from './products/products.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -38,6 +40,8 @@ import { EmailModule } from './email/email.module';
     SubscriptionTypesModule,
     GroupEnrollmentsModule,
     TasksModule,
+    ProductsModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

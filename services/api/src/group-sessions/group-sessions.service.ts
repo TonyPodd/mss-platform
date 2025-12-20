@@ -56,6 +56,9 @@ export class GroupSessionsService {
             },
           });
           sessions.push(session);
+
+          // Автоматически создаем bookings для всех активных enrollments
+          await this.createBookingsForSession(session.id, dto.groupId);
         }
       }
 
@@ -286,5 +289,69 @@ export class GroupSessionsService {
     return this.prisma.groupSession.delete({
       where: { id },
     });
+  }
+
+  // Создать bookings для всех активных enrollments для конкретной сессии
+  async createBookingsForSession(sessionId: string, groupId: string) {
+    const session = await this.prisma.groupSession.findUnique({
+      where: { id: sessionId },
+      include: { group: true },
+    });
+
+    if (!session) {
+      throw new NotFoundException('Занятие не найдено');
+    }
+
+    // Получаем все активные enrollments для этого направления
+    const enrollments = await this.prisma.groupEnrollment.findMany({
+      where: {
+        groupId,
+        status: 'ACTIVE',
+      },
+      include: {
+        subscription: true,
+      },
+    });
+
+    // Создаем booking для каждого enrollment
+    for (const enrollment of enrollments) {
+      // Проверяем, что booking еще не создан
+      const existingBooking = await this.prisma.booking.findFirst({
+        where: {
+          groupSessionId: sessionId,
+          userId: enrollment.userId,
+        },
+      });
+
+      if (!existingBooking) {
+        // Рассчитываем цену со скидкой 10%
+        const price = session.group.price * 0.9;
+
+        await this.prisma.booking.create({
+          data: {
+            userId: enrollment.userId,
+            groupSessionId: sessionId,
+            groupEnrollmentId: enrollment.id,
+            subscriptionId: enrollment.subscriptionId,
+            status: 'CONFIRMED',
+            participantsCount: (enrollment.participants as any).length || 1,
+            totalPrice: price * ((enrollment.participants as any).length || 1),
+            paymentMethod: 'SUBSCRIPTION',
+            participants: enrollment.participants,
+            contactEmail: enrollment.contactEmail,
+          },
+        });
+
+        // Увеличиваем счетчик участников сессии
+        await this.prisma.groupSession.update({
+          where: { id: sessionId },
+          data: {
+            currentParticipants: {
+              increment: (enrollment.participants as any).length || 1,
+            },
+          },
+        });
+      }
+    }
   }
 }
