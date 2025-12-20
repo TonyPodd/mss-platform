@@ -64,13 +64,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(254, 178, 151, 0.12);
-  padding: 0.625rem 1.25rem;
-  border-radius: 12px;
   font-size: 0.9375rem;
-  font-weight: 600;
-  color: #8b7355;
-  border: 1px solid rgba(139, 115, 85, 0.2);
+  font-weight: 500;
+  color: #6b5b52;
 }
 
 .groupsSection {
@@ -109,16 +105,17 @@
   position: absolute;
   top: 1.25rem;
   left: 1.25rem;
-  background: rgba(90, 74, 66, 0.9);
-  backdrop-filter: blur(8px);
+  background: rgba(90, 74, 66, 0.92);
+  backdrop-filter: blur(10px);
   color: white;
   padding: 0.5rem 1.125rem;
   border-radius: 24px;
   font-size: 0.8125rem;
   font-weight: 600;
-  z-index: 2;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 10;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  pointer-events: none;
 }
 
 .groupImage {
@@ -298,7 +295,7 @@
 .primaryButton {
   background: linear-gradient(135deg, #feb297 0%, #f09674 100%);
   color: white;
-  flex: 2;
+  width: 100%;
   box-shadow: 0 4px 12px rgba(240, 150, 116, 0.25);
   border: none;
 }

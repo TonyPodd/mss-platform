@@ -132,9 +132,6 @@ export default function GroupsPage() {
                             <strong>📅 Расписание:</strong>
                             <span>{formatSchedule(group.schedule)}</span>
                           </div>
-                          <a href="/calendar" className={styles.scheduleLink}>
-                            → Открыть в календаре
-                          </a>
                         </div>
 
                         <div className={styles.groupDetails}>
@@ -153,26 +150,16 @@ export default function GroupsPage() {
 
                         <div className={styles.groupActions}>
                           {hasSessions ? (
-                            <>
-                              <button
-                                onClick={() => handleEnroll(group)}
-                                className={styles.primaryButton}
-                              >
-                                Записаться
-                              </button>
-                              <a href="/calendar" className={styles.secondaryButton}>
-                                Расписание
-                              </a>
-                            </>
+                            <button
+                              onClick={() => handleEnroll(group)}
+                              className={styles.primaryButton}
+                            >
+                              Записаться
+                            </button>
                           ) : (
-                            <>
-                              <div className={styles.noSessionsMessage}>
-                                Занятия пока не запланированы
-                              </div>
-                              <a href="/calendar" className={styles.secondaryButton}>
-                                Смотреть календарь
-                              </a>
-                            </>
+                            <div className={styles.noSessionsMessage}>
+                              Занятия пока не запланированы
+                            </div>
                           )}
                         </div>
                       </div>
