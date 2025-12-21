@@ -30,6 +30,7 @@ export const API_ROUTES = {
   MASTERS: {
     LIST: '/masters',
     BY_ID: (id: string) => `/masters/${id}`,
+    ACTIVE: '/masters/active',
   },
   GROUPS: {
     LIST: '/groups',

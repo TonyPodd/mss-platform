@@ -100,6 +100,10 @@ export class BookingsService {
 export class MastersService {
   constructor(private client: ApiClient) {}
 
+  async getActive(): Promise<Master[]> {
+    return this.client.get<Master[]>(API_ROUTES.MASTERS.ACTIVE);
+  }
+
   async getList(): Promise<Master[]> {
     return this.client.get<Master[]>(API_ROUTES.MASTERS.LIST);
   }

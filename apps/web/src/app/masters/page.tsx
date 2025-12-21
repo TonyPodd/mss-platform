@@ -1,59 +1,23 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import { apiClient } from '../../lib/api';
 import styles from './masters.module.css';
 
-interface Master {
-  id: string;
-  name: string;
-  bio: string | null;
-  avatarUrl: string | null;
-  vkLink: string | null;
-  instagramLink: string | null;
-  telegramLink: string | null;
-  specializations: string[];
-  isActive: boolean;
+// Обновлять каждые 60 секунд
+export const revalidate = 60;
+
+async function getMasters() {
+  try {
+    const masters = await apiClient.masters.getActive();
+    return masters;
+  } catch (error) {
+    console.error('Ошибка загрузки мастеров:', error);
+    return [];
+  }
 }
 
-export default function MastersPage() {
-  const [masters, setMasters] = useState<Master[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchMasters();
-  }, []);
-
-  const fetchMasters = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/masters/active`);
-      if (response.ok) {
-        const data = await response.json();
-        setMasters(data);
-      }
-    } catch (error) {
-      console.error('Ошибка загрузки мастеров:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <>
-        <Header />
-        <main className={styles.main}>
-          <div className={styles.container}>
-            <div className={styles.loading}>
-              <p>Загрузка...</p>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
+export default async function MastersPage() {
+  const masters = await getMasters();
 
   return (
     <>
