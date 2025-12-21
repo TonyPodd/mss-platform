@@ -165,7 +165,7 @@ export interface User {
   lastName: string;
   age?: number;
   avatarUrl?: string;
-  role: 'user' | 'admin' | 'master';
+  role: 'USER' | 'ADMIN' | 'MASTER';
   emailVerified: boolean;
   vkId?: string;
   telegramId?: string;
