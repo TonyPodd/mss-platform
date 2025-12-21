@@ -1,6 +1,7 @@
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { apiClient } from '../../lib/api';
+import { getImageUrl } from '../../lib/utils';
 import styles from './masters.module.css';
 
 // Обновлять каждые 10 секунд
@@ -45,7 +46,7 @@ export default async function MastersPage() {
               <div key={master.id} className={styles.masterCard}>
                 <div className={styles.masterAvatar}>
                   {master.avatarUrl ? (
-                    <img src={master.avatarUrl} alt={master.name} />
+                    <img src={getImageUrl(master.avatarUrl)} alt={master.name} />
                   ) : (
                     <div className={styles.avatarPlaceholder}>
                       {master.name.charAt(0)}

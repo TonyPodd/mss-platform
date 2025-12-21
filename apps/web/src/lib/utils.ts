@@ -1,5 +1,5 @@
 /**
- * Преобразует относительный URL изображения в полный URL с API сервером
+ * Преобразует относительный URL изображения в полный URL
  */
 export function getImageUrl(url?: string | null): string | undefined {
   if (!url) return undefined;
@@ -9,11 +9,11 @@ export function getImageUrl(url?: string | null): string | undefined {
     return url;
   }
 
-  // Если относительный путь, добавляем базовый URL API
-  // Используем window.location для определения текущего хоста, но API всегда на порту 3000
-  const apiUrl = typeof window !== 'undefined'
-    ? `${window.location.protocol}//${window.location.hostname}:3000`
+  // Если относительный путь, используем текущий хост
+  // NGINX проксирует /uploads на API сервер
+  const baseUrl = typeof window !== 'undefined'
+    ? `${window.location.protocol}//${window.location.host}`
     : 'http://localhost:3000';
 
-  return `${apiUrl}${url}`;
+  return `${baseUrl}${url}`;
 }
