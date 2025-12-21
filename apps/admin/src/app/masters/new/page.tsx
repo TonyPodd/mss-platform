@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '../../../lib/api';
@@ -65,9 +67,9 @@ export default function NewMasterPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>Добавить мастера</h1>
-        <a href="/masters" className={styles.backButton}>
+        <Link href="/masters" className={styles.backButton}>
           Назад к списку
-        </a>
+        </Link>
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
@@ -175,9 +177,9 @@ export default function NewMasterPage() {
           <button type="submit" disabled={loading} className={styles.submitButton}>
             {loading ? 'Создание...' : 'Создать мастера'}
           </button>
-          <a href="/masters" className={styles.cancelButton}>
+          <Link href="/masters" className={styles.cancelButton}>
             Отмена
-          </a>
+          </Link>
         </div>
       </form>
     </div>

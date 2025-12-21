@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { apiClient } from '../../lib/api';
 import { RegularGroup } from '@mss/shared';
 import styles from './groups.module.css';
@@ -70,9 +71,9 @@ export default function GroupsPage() {
           <h1>Управление направлениями</h1>
           <p className={styles.subtitle}>Постоянные занятия с регулярным расписанием (не мастер-классы)</p>
         </div>
-        <a href="/groups/new" className={styles.addButton}>
+        <Link href="/groups/new" className={styles.addButton}>
           + Добавить направление
-        </a>
+        </Link>
       </div>
 
       <div className={styles.tableWrapper}>
@@ -115,9 +116,9 @@ export default function GroupsPage() {
                 </td>
                 <td>
                   <div className={styles.actions}>
-                    <a href={`/groups/${group.id}/edit`} className={styles.button}>
+                    <Link href={`/groups/${group.id}/edit`} className={styles.button}>
                       Редактировать
-                    </a>
+                    </Link>
                     <button
                       className={`${styles.button} ${styles.buttonToggle}`}
                       onClick={() => handleToggleActive(group.id)}
@@ -141,9 +142,9 @@ export default function GroupsPage() {
       {groups.length === 0 && (
         <div className={styles.empty}>
           <p>Направлений пока нет</p>
-          <a href="/groups/new" className={styles.addButton}>
+          <Link href="/groups/new" className={styles.addButton}>
             Добавить первое направление
-          </a>
+          </Link>
         </div>
       )}
     </div>

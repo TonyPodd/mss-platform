@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { apiClient } from '../../lib/api';
 import { News } from '@mss/shared';
 import styles from './news.module.css';
@@ -68,9 +69,9 @@ export default function NewsPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>Управление новостями</h1>
-        <a href="/news/new" className={styles.addButton}>
+        <Link href="/news/new" className={styles.addButton}>
           + Добавить новость
-        </a>
+        </Link>
       </div>
 
       <div className={styles.tableWrapper}>
@@ -119,9 +120,9 @@ export default function NewsPage() {
                         Снять с публикации
                       </button>
                     )}
-                    <a href={`/news/${item.id}/edit`} className={styles.button}>
+                    <Link href={`/news/${item.id}/edit`} className={styles.button}>
                       Редактировать
-                    </a>
+                    </Link>
                     <button
                       className={`${styles.button} ${styles.buttonDelete}`}
                       onClick={() => handleDelete(item.id)}
@@ -139,9 +140,9 @@ export default function NewsPage() {
       {news.length === 0 && (
         <div className={styles.empty}>
           <p>Новостей пока нет</p>
-          <a href="/news/new" className={styles.addButton}>
+          <Link href="/news/new" className={styles.addButton}>
             Создать первую новость
-          </a>
+          </Link>
         </div>
       )}
     </div>

@@ -169,15 +169,15 @@ export default function DashboardPage() {
       <div className={styles.quickActions}>
         <h2>Быстрые действия</h2>
         <div className={styles.actionButtons}>
-          <a href="/events/new" className={styles.button}>
+          <Link href="/events/new" className={styles.button}>
             + Создать событие
-          </a>
-          <a href="/news/new" className={styles.button}>
+          </Link>
+          <Link href="/news/new" className={styles.button}>
             + Добавить новость
-          </a>
-          <a href="/masters/new" className={styles.button}>
+          </Link>
+          <Link href="/masters/new" className={styles.button}>
             + Добавить мастера
-          </a>
+          </Link>
         </div>
       </div>
 

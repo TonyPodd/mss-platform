@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { apiClient } from '../../../../lib/api';
@@ -109,9 +111,9 @@ export default function EditEventPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>Редактировать событие</h1>
-        <a href="/events" className={styles.backButton}>
+        <Link href="/events" className={styles.backButton}>
           Назад к списку
-        </a>
+        </Link>
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
@@ -275,9 +277,9 @@ export default function EditEventPage() {
           <button type="submit" disabled={loading} className={styles.submitButton}>
             {loading ? 'Сохранение...' : 'Сохранить изменения'}
           </button>
-          <a href="/events" className={styles.cancelButton}>
+          <Link href="/events" className={styles.cancelButton}>
             Отмена
-          </a>
+          </Link>
         </div>
       </form>
     </div>

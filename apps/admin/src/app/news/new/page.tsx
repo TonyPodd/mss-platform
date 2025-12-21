@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '../../../lib/api';
@@ -56,9 +58,9 @@ export default function NewNewsPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>Добавить новость</h1>
-        <a href="/news" className={styles.backButton}>
+        <Link href="/news" className={styles.backButton}>
           Назад к списку
-        </a>
+        </Link>
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
@@ -126,9 +128,9 @@ export default function NewNewsPage() {
           <button type="submit" disabled={loading} className={styles.submitButton}>
             {loading ? 'Создание...' : 'Создать новость'}
           </button>
-          <a href="/news" className={styles.cancelButton}>
+          <Link href="/news" className={styles.cancelButton}>
             Отмена
-          </a>
+          </Link>
         </div>
       </form>
     </div>

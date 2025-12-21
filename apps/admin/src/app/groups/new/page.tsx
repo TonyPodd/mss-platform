@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '../../../lib/api';
@@ -98,9 +100,9 @@ export default function NewGroupPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>Добавить направление</h1>
-        <a href="/groups" className={styles.backButton}>
+        <Link href="/groups" className={styles.backButton}>
           Назад к списку
-        </a>
+        </Link>
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
@@ -277,9 +279,9 @@ export default function NewGroupPage() {
           <button type="submit" disabled={loading} className={styles.submitButton}>
             {loading ? 'Создание...' : 'Создать направление'}
           </button>
-          <a href="/groups" className={styles.cancelButton}>
+          <Link href="/groups" className={styles.cancelButton}>
             Отмена
-          </a>
+          </Link>
         </div>
       </form>
     </div>

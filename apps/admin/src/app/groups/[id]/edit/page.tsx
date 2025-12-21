@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { apiClient } from '../../../../lib/api';
@@ -137,12 +139,12 @@ export default function EditGroupPage() {
       <div className={styles.header}>
         <h1>Редактировать направление</h1>
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <a href={`/groups/${groupId}/sessions`} className={styles.sessionsButton}>
+          <Link href={`/groups/${groupId}/sessions`} className={styles.sessionsButton}>
             📅 Управление занятиями
-          </a>
-          <a href="/groups" className={styles.backButton}>
+          </Link>
+          <Link href="/groups" className={styles.backButton}>
             Назад к списку
-          </a>
+          </Link>
         </div>
       </div>
 
@@ -320,9 +322,9 @@ export default function EditGroupPage() {
           <button type="submit" disabled={loading} className={styles.submitButton}>
             {loading ? 'Сохранение...' : 'Сохранить изменения'}
           </button>
-          <a href="/groups" className={styles.cancelButton}>
+          <Link href="/groups" className={styles.cancelButton}>
             Отмена
-          </a>
+          </Link>
         </div>
       </form>
     </div>

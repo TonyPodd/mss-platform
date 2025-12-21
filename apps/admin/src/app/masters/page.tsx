@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { apiClient } from '../../lib/api';
 import { Master } from '@mss/shared';
 import styles from './masters.module.css';
@@ -48,9 +49,9 @@ export default function MastersPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>Управление мастерами</h1>
-        <a href="/masters/new" className={styles.addButton}>
+        <Link href="/masters/new" className={styles.addButton}>
           + Добавить мастера
-        </a>
+        </Link>
       </div>
 
       <div className={styles.tableWrapper}>
@@ -100,9 +101,9 @@ export default function MastersPage() {
                 </td>
                 <td>
                   <div className={styles.actions}>
-                    <a href={`/masters/${master.id}/edit`} className={styles.button}>
+                    <Link href={`/masters/${master.id}/edit`} className={styles.button}>
                       Редактировать
-                    </a>
+                    </Link>
                     <button
                       className={`${styles.button} ${styles.buttonDelete}`}
                       onClick={() => handleDelete(master.id)}
@@ -120,9 +121,9 @@ export default function MastersPage() {
       {masters.length === 0 && (
         <div className={styles.empty}>
           <p>Мастеров пока нет</p>
-          <a href="/masters/new" className={styles.addButton}>
+          <Link href="/masters/new" className={styles.addButton}>
             Добавить первого мастера
-          </a>
+          </Link>
         </div>
       )}
     </div>
