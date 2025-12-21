@@ -168,6 +168,16 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
+    # Загруженные файлы (изображения и т.д.)
+    location /uploads {
+        proxy_pass http://localhost:4000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
     # Admin панель
     location /admin {
         proxy_pass http://localhost:3001;
@@ -296,7 +306,7 @@ pnpm --filter @mss/api-client build
 pnpm --filter api build
 pnpm --filter web build
 pnpm --filter admin build
-
+# sdfsd
 # Запустить через PM2
 pm2 start ecosystem.config.js
 
@@ -394,6 +404,25 @@ git add README.md
 git commit -m "Test auto-deploy"
 git push origin main
 ```
+
+# Создать пользователя через API
+curl -X POST http://localhost:4000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin_mss@nazare.ru",
+    "password": "best_ever_password!",
+    "firstName": "Admin",
+    "lastName": "User"
+  }'
+
+-- Поменять роль на ADMIN (замени email на свой)
+UPDATE users SET role = 'ADMIN' WHERE email = 'admin_mss@nazare.ru';
+
+-- Проверить что роль изменилась
+SELECT id, email, "firstName", "lastName", role FROM users WHERE email = 'admin_mss@nazare.ru';
+
+\q
+
 
 Проверь:
 1. Открой https://github.com/TonyPodd/mss-platform/actions
