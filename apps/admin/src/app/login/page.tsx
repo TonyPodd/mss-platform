@@ -21,7 +21,7 @@ export default function AdminLoginPage() {
       const response = await apiClient.auth.login(email, password);
 
       // Проверяем что пользователь админ
-      if (response.user.role !== 'admin') {
+      if (response.user.role !== 'ADMIN') {
         setError('Доступ запрещен. Требуются права администратора.');
         return;
       }
