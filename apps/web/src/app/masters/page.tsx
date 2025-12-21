@@ -3,8 +3,8 @@ import Footer from '../../components/Footer';
 import { apiClient } from '../../lib/api';
 import styles from './masters.module.css';
 
-// Обновлять каждые 60 секунд
-export const revalidate = 60;
+// Обновлять каждые 10 секунд
+export const revalidate = 10;
 
 async function getMasters() {
   try {

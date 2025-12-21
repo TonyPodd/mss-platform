@@ -5,8 +5,8 @@ import Footer from '../components/Footer';
 import { apiClient } from '../lib/api';
 import styles from './page.module.css';
 
-// Перезапрашивать данные каждые 60 секунд (ISR - Incremental Static Regeneration)
-export const revalidate = 60;
+// Перезапрашивать данные каждые 10 секунд (ISR - Incremental Static Regeneration)
+export const revalidate = 10;
 
 async function getHomePageData() {
   try {
