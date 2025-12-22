@@ -415,10 +415,10 @@ export class SubscriptionTypesService {
 
   async create(data: {
     name: string;
-    description: string;
-    classCount: number;
+    description?: string | null;
+    amount: number;
     price: number;
-    durationDays?: number;
+    durationDays?: number | null;
     isActive?: boolean;
   }): Promise<SubscriptionType> {
     return this.client.post<SubscriptionType>('/subscription-types', data);
@@ -428,10 +428,10 @@ export class SubscriptionTypesService {
     id: string,
     data: {
       name?: string;
-      description?: string;
-      classCount?: number;
+      description?: string | null;
+      amount?: number;
       price?: number;
-      durationDays?: number;
+      durationDays?: number | null;
       isActive?: boolean;
     },
   ): Promise<SubscriptionType> {

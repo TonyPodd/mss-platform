@@ -13,6 +13,7 @@ export default function Sidebar() {
     { href: '/dashboard', label: 'Дашборд', icon: '📊' },
     { href: '/events', label: 'Мастер-классы', icon: '🎨' },
     { href: '/groups', label: 'Направления', icon: '🔵' },
+    { href: '/subscriptions', label: 'Абонементы', icon: '💳' },
     { href: '/masters', label: 'Мастера', icon: '👨‍🎨' },
     { href: '/news', label: 'Новости', icon: '📰' },
     { href: '/products', label: 'Товары', icon: '🛍️' },
