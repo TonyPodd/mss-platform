@@ -19,4 +19,4 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
             cd /root/mss-platform
-            ./deploy.sh
+            bash deploy.sh
