@@ -4,11 +4,11 @@
 echo "🚀 Начало деплоя..."
 
 # Переходим в директорию проекта
-cd /var/www/mss
+cd /root/mss-platform
 
 # Останавливаем приложения
 echo "⏸️  Останавливаем приложения..."
-pm2 stop all
+pm2 stop mss-web mss-admin mss-api
 
 # Получаем последние изменения
 echo "📥 Получаем обновления из GitHub..."
@@ -26,6 +26,13 @@ pnpm --filter api exec npx prisma generate
 echo "🗄️  Применяем миграции базы данных..."
 pnpm --filter api exec npx prisma migrate deploy
 
+# Собираем общие пакеты
+echo "🔨 Собираем Shared..."
+pnpm --filter @mss/shared build
+
+echo "🔨 Собираем API Client..."
+pnpm --filter @mss/api-client build
+
 # Собираем приложения
 echo "🔨 Собираем API..."
 pnpm --filter api build
@@ -38,7 +45,7 @@ pnpm --filter admin build
 
 # Перезапускаем приложения
 echo "🔄 Перезапускаем приложения..."
-pm2 restart all
+pm2 restart mss-api mss-web mss-admin
 
 # Показываем статус
 echo "✅ Деплой завершен!"
