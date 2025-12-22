@@ -10,7 +10,7 @@ export default function Footer() {
         </div>
 
         <div className={styles.contacts}>
-          <a href="#" className={styles.contactLink}>Новая заря, 15</a>
+          <a href="https://yandex.ru/maps/?text=Новая заря, 15" target="_blank" rel="noopener noreferrer" className={styles.contactLink}>Новая заря, 15</a>
           <span className={styles.separator}>·</span>
           <a href="tel:+79164468385" className={styles.contactLink}>+7 916 446 8385</a>
           <span className={styles.separator}>·</span>
