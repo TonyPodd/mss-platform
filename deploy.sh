@@ -12,7 +12,8 @@ pm2 stop mss-web mss-admin mss-api
 
 # Получаем последние изменения
 echo "📥 Получаем обновления из GitHub..."
-git pull origin main
+git fetch origin
+git reset --hard origin/main
 
 # Устанавливаем зависимости
 echo "📦 Устанавливаем зависимости..."
