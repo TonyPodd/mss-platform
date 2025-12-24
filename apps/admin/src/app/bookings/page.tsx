@@ -90,12 +90,8 @@ export default function BookingsPage() {
 
   const handleStatusChange = async (id: string, status: string) => {
     try {
-      await fetch(`http://localhost:3000/bookings/${id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      });
-      loadBookings();
+      await apiClient.bookings.updateStatus(id, status);
+      await loadBookings();
     } catch (error) {
       console.error('Ошибка обновления статуса:', error);
       alert('Не удалось обновить статус');

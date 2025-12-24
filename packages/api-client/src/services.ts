@@ -92,6 +92,10 @@ export class BookingsService {
     return this.client.patch<Booking>(`/bookings/${id}/cancel`, {});
   }
 
+  async updateStatus(id: string, status: string): Promise<Booking> {
+    return this.client.patch<Booking>(`/bookings/${id}/status`, { status });
+  }
+
   async getMyUpcoming(): Promise<Booking[]> {
     return this.client.get<Booking[]>('/bookings/my/upcoming');
   }
