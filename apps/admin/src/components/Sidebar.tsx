@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { apiClient } from '../lib/api';
@@ -8,6 +9,7 @@ import styles from './Sidebar.module.css';
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
     { href: '/dashboard', label: 'Дашборд', icon: '📊' },
@@ -29,30 +31,41 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className={styles.sidebar}>
-      <div className={styles.logo}>
-        <h2>MSS Admin</h2>
-      </div>
+    <>
+      <button className={styles.burgerButton} onClick={() => setIsOpen(!isOpen)}>
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
 
-      <nav className={styles.nav}>
-        {menuItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`${styles.navItem} ${pathname?.startsWith(item.href) ? styles.active : ''}`}
-          >
-            <span className={styles.icon}>{item.icon}</span>
-            <span>{item.label}</span>
-          </Link>
-        ))}
-      </nav>
+      {isOpen && <div className={styles.overlay} onClick={() => setIsOpen(false)} />}
 
-      <div className={styles.logoutSection}>
-        <button onClick={handleLogout} className={styles.logoutButton}>
-          <span className={styles.icon}>🚪</span>
-          <span>Выйти</span>
-        </button>
-      </div>
-    </aside>
+      <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
+        <div className={styles.logo}>
+          <h2>MSS Admin</h2>
+        </div>
+
+        <nav className={styles.nav}>
+          {menuItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`${styles.navItem} ${pathname?.startsWith(item.href) ? styles.active : ''}`}
+              onClick={() => setIsOpen(false)}
+            >
+              <span className={styles.icon}>{item.icon}</span>
+              <span>{item.label}</span>
+            </Link>
+          ))}
+        </nav>
+
+        <div className={styles.logoutSection}>
+          <button onClick={handleLogout} className={styles.logoutButton}>
+            <span className={styles.icon}>🚪</span>
+            <span>Выйти</span>
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }
