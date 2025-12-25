@@ -21,7 +21,6 @@ export default function Sidebar() {
     { href: '/products', label: 'Товары', icon: '🛍️' },
     { href: '/orders', label: 'Заказы', icon: '📦' },
     { href: '/bookings', label: 'Записи на МК', icon: '📝' },
-    { href: '/enrollments', label: 'Зачисления', icon: '👥' },
   ];
 
   const handleLogout = () => {

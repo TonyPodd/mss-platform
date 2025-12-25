@@ -503,7 +503,7 @@ export default function ProfilePage() {
                               {subscription.name}
                             </h3>
                             <p className={styles.listCardSubtitle}>
-                              Использовано: {(subscription.totalBalance - subscription.remainingBalance).toFixed(2)} ₽ из {subscription.totalBalance.toFixed(2)} ₽
+                              Использовано: {Math.max(0, subscription.totalBalance - subscription.remainingBalance).toFixed(2)} ₽ из {subscription.totalBalance.toFixed(2)} ₽
                             </p>
                           </div>
                           {getStatusBadge(subscription.status)}
