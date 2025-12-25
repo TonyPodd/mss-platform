@@ -5,6 +5,7 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { useCart } from '../../contexts/CartContext';
 import { apiClient } from '../../lib/api';
+import { getImageUrl } from '../../lib/utils';
 import styles from './shop.module.css';
 
 interface Product {
@@ -121,9 +122,7 @@ export default function ShopPage() {
                       {product.images && product.images.length > 0 ? (
                         <>
                           <img
-                            src={product.images[currentIndex].startsWith('http')
-                              ? product.images[currentIndex]
-                              : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}${product.images[currentIndex]}`}
+                            src={getImageUrl(product.images[currentIndex])}
                             alt={`${product.name} - фото ${currentIndex + 1}`}
                           />
                           {hasMultipleImages && (

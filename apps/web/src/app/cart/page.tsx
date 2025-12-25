@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { apiClient } from '../../lib/api';
+import { getImageUrl } from '../../lib/utils';
 import { useRouter } from 'next/navigation';
 import Header from '../../components/Header';
 import { PaymentMethod } from '@mss/shared';
@@ -92,7 +93,7 @@ export default function CartPage() {
                   <div className={styles.itemImage}>
                     {item.product.images && item.product.images.length > 0 ? (
                       <img
-                        src={item.product.images[0].startsWith('http') ? item.product.images[0] : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}${item.product.images[0]}`}
+                        src={getImageUrl(item.product.images[0])}
                         alt={item.product.name}
                       />
                     ) : (
