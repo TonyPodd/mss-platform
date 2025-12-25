@@ -9,11 +9,8 @@ export function getImageUrl(url?: string | null): string | undefined {
     return url;
   }
 
-  // Если относительный путь, используем текущий хост
+  // Если относительный путь, возвращаем как есть
+  // Браузер автоматически преобразует его относительно текущего хоста
   // NGINX проксирует /uploads на API сервер
-  const baseUrl = typeof window !== 'undefined'
-    ? `${window.location.protocol}//${window.location.host}`
-    : 'http://localhost:3000';
-
-  return `${baseUrl}${url}`;
+  return url;
 }
