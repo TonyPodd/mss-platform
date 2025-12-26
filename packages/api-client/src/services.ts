@@ -400,6 +400,29 @@ export class UsersService {
   async purchaseSubscription(typeId: string): Promise<Subscription> {
     return this.client.post('/users/me/subscriptions/purchase', { typeId });
   }
+
+  // ADMIN METHODS
+  async getAllUsers(page = 1, limit = 20, search?: string): Promise<{
+    users: User[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }> {
+    const params: any = { page, limit };
+    if (search) params.search = search;
+    return this.client.get('/users/admin/all', { params });
+  }
+
+  async getUserById(userId: string): Promise<User> {
+    return this.client.get(`/users/admin/${userId}`);
+  }
+
+  async addBalance(userId: string, amount: number): Promise<Subscription> {
+    return this.client.post(`/users/admin/${userId}/add-balance`, { amount });
+  }
 }
 
 export class SubscriptionTypesService {

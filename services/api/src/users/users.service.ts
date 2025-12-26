@@ -301,4 +301,202 @@ export class UsersService {
 
     return subscription;
   }
+
+  // ADMIN METHODS
+  async getAllUsers(page: number = 1, limit: number = 20, search?: string) {
+    const skip = (page - 1) * limit;
+
+    const where = search
+      ? {
+          OR: [
+            { email: { contains: search, mode: 'insensitive' as const } },
+            { firstName: { contains: search, mode: 'insensitive' as const } },
+            { lastName: { contains: search, mode: 'insensitive' as const } },
+            { phone: { contains: search, mode: 'insensitive' as const } },
+          ],
+        }
+      : {};
+
+    const [users, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: {
+          createdAt: 'desc',
+        },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          phone: true,
+          age: true,
+          role: true,
+          emailVerified: true,
+          createdAt: true,
+          updatedAt: true,
+          subscriptions: {
+            where: {
+              status: 'ACTIVE',
+            },
+            select: {
+              id: true,
+              name: true,
+              remainingBalance: true,
+              totalBalance: true,
+              expiresAt: true,
+            },
+          },
+          _count: {
+            select: {
+              bookings: true,
+              orders: true,
+            },
+          },
+        },
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    return {
+      users,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getUserById(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        age: true,
+        role: true,
+        emailVerified: true,
+        createdAt: true,
+        updatedAt: true,
+        subscriptions: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+          include: {
+            subscriptionType: true,
+          },
+        },
+        bookings: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: 10,
+          include: {
+            event: {
+              select: {
+                title: true,
+                startDate: true,
+              },
+            },
+          },
+        },
+        orders: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: 10,
+        },
+        groupEnrollments: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+          include: {
+            group: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+
+    return user;
+  }
+
+  async addBalanceToUser(userId: string, amount: number) {
+    // Проверить пользователя
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+
+    // Получить активный абонемент пользователя
+    const activeSubscription = await this.prisma.subscription.findFirst({
+      where: {
+        userId,
+        status: 'ACTIVE',
+      },
+      orderBy: {
+        remainingBalance: 'desc',
+      },
+    });
+
+    // Если есть активный абонемент, пополняем его
+    if (activeSubscription) {
+      const updatedSubscription = await this.prisma.subscription.update({
+        where: { id: activeSubscription.id },
+        data: {
+          totalBalance: {
+            increment: amount,
+          },
+          remainingBalance: {
+            increment: amount,
+          },
+          // Обновляем название
+          name: activeSubscription.name.includes('Объединённый')
+            ? activeSubscription.name
+            : 'Объединённый абонемент',
+          // Если абонемент был исчерпан, возвращаем статус ACTIVE
+          status: 'ACTIVE',
+        },
+      });
+
+      return updatedSubscription;
+    }
+
+    // Если нет активного абонемента, создаем новый
+    const subscription = await this.prisma.subscription.create({
+      data: {
+        userId,
+        typeId: (
+          await this.prisma.subscriptionType.findFirst({
+            where: { isActive: true },
+            orderBy: { createdAt: 'asc' },
+          })
+        )?.id,
+        name: `Пополнение администратором на ${amount}₽`,
+        totalBalance: amount,
+        remainingBalance: amount,
+        price: 0, // Ручное пополнение без оплаты
+        status: 'ACTIVE',
+        expiresAt: null,
+      },
+    });
+
+    return subscription;
+  }
 }

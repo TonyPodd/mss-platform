@@ -7,10 +7,14 @@ import {
   UseGuards,
   Request,
   Param,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '@prisma/client';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -58,5 +62,36 @@ export class UsersController {
     @Body('typeId') typeId: string,
   ) {
     return this.usersService.purchaseSubscription(req.user.id, typeId);
+  }
+
+  // ADMIN ENDPOINTS
+  @Get('admin/all')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  async getAllUsers(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('search') search?: string,
+  ) {
+    const pageNum = page ? parseInt(page, 10) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 20;
+    return this.usersService.getAllUsers(pageNum, limitNum, search);
+  }
+
+  @Get('admin/:id')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  async getUserByIdAdmin(@Param('id') userId: string) {
+    return this.usersService.getUserById(userId);
+  }
+
+  @Post('admin/:id/add-balance')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  async addBalance(
+    @Param('id') userId: string,
+    @Body('amount') amount: number,
+  ) {
+    return this.usersService.addBalanceToUser(userId, amount);
   }
 }

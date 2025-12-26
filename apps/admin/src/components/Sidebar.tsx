@@ -16,6 +16,7 @@ export default function Sidebar() {
     { href: '/events', label: 'Мастер-классы', icon: '🎨' },
     { href: '/groups', label: 'Направления', icon: '🔵' },
     { href: '/subscriptions', label: 'Абонементы', icon: '💳' },
+    { href: '/users', label: 'Пользователи', icon: '👥' },
     { href: '/masters', label: 'Мастера', icon: '👨‍🎨' },
     { href: '/news', label: 'Новости', icon: '📰' },
     { href: '/products', label: 'Товары', icon: '🛍️' },
