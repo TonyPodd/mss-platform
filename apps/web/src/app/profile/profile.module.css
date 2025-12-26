@@ -336,6 +336,11 @@
 }
 
 /* Упрощенные табы */
+.tabsWrapper {
+  position: relative;
+  width: 100%;
+}
+
 .tabs {
   background: white;
   border-radius: 12px;
@@ -352,6 +357,24 @@
 
 .tabs::-webkit-scrollbar {
   display: none;
+}
+
+/* Индикатор прокрутки для мобильных */
+.tabsScrollIndicator {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  background: linear-gradient(to left, rgba(255, 255, 255, 0.95), transparent);
+  border-radius: 0 12px 12px 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tabsWrapper.hasScroll .tabsScrollIndicator {
+  opacity: 1;
 }
 
 .tab {

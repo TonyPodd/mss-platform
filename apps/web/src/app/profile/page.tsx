@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { apiClient } from '../../lib/api';
@@ -33,6 +33,8 @@ export default function ProfilePage() {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [subscriptionTypes, setSubscriptionTypes] = useState<SubscriptionType[]>([]);
   const [purchasing, setPurchasing] = useState<string | null>(null);
+  const [tabsHasScroll, setTabsHasScroll] = useState(false);
+  const tabsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -77,6 +79,20 @@ export default function ProfilePage() {
       setLoading(false);
     }
   };
+
+  // Проверка скролла табов
+  useEffect(() => {
+    const checkTabsScroll = () => {
+      if (tabsRef.current) {
+        const hasScroll = tabsRef.current.scrollWidth > tabsRef.current.clientWidth;
+        setTabsHasScroll(hasScroll);
+      }
+    };
+
+    checkTabsScroll();
+    window.addEventListener('resize', checkTabsScroll);
+    return () => window.removeEventListener('resize', checkTabsScroll);
+  }, [subscriptions, bookings, upcomingBookings, enrollments, orders]);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -395,42 +411,45 @@ export default function ProfilePage() {
 
           {/* Правая колонка - Табы */}
           <div className={styles.rightColumn}>
-            <div className={styles.tabs}>
-              <button
-                className={`${styles.tab} ${activeTab === 'upcoming' ? styles.tabActive : ''}`}
-                onClick={() => setActiveTab('upcoming')}
-              >
-                Предстоящие
-                <span className={styles.tabBadge}>{upcomingBookings.length}</span>
-              </button>
-              <button
-                className={`${styles.tab} ${activeTab === 'subscriptions' ? styles.tabActive : ''}`}
-                onClick={() => setActiveTab('subscriptions')}
-              >
-                Абонемент
-                <span className={styles.tabBadge}>{subscriptions.length}</span>
-              </button>
-              <button
-                className={`${styles.tab} ${activeTab === 'enrollments' ? styles.tabActive : ''}`}
-                onClick={() => setActiveTab('enrollments')}
-              >
-                Направления
-                <span className={styles.tabBadge}>{enrollments.filter(e => e.status === 'ACTIVE').length}</span>
-              </button>
-              <button
-                className={`${styles.tab} ${activeTab === 'bookings' ? styles.tabActive : ''}`}
-                onClick={() => setActiveTab('bookings')}
-              >
-                История
-                <span className={styles.tabBadge}>{bookings.length}</span>
-              </button>
-              <button
-                className={`${styles.tab} ${activeTab === 'orders' ? styles.tabActive : ''}`}
-                onClick={() => setActiveTab('orders')}
-              >
-                Заказы
-                <span className={styles.tabBadge}>{orders.length}</span>
-              </button>
+            <div className={`${styles.tabsWrapper} ${tabsHasScroll ? styles.hasScroll : ''}`}>
+              <div className={styles.tabs} ref={tabsRef}>
+                <button
+                  className={`${styles.tab} ${activeTab === 'upcoming' ? styles.tabActive : ''}`}
+                  onClick={() => setActiveTab('upcoming')}
+                >
+                  Предстоящие
+                  <span className={styles.tabBadge}>{upcomingBookings.length}</span>
+                </button>
+                <button
+                  className={`${styles.tab} ${activeTab === 'subscriptions' ? styles.tabActive : ''}`}
+                  onClick={() => setActiveTab('subscriptions')}
+                >
+                  Абонемент
+                  <span className={styles.tabBadge}>{subscriptions.length}</span>
+                </button>
+                <button
+                  className={`${styles.tab} ${activeTab === 'enrollments' ? styles.tabActive : ''}`}
+                  onClick={() => setActiveTab('enrollments')}
+                >
+                  Направления
+                  <span className={styles.tabBadge}>{enrollments.filter(e => e.status === 'ACTIVE').length}</span>
+                </button>
+                <button
+                  className={`${styles.tab} ${activeTab === 'bookings' ? styles.tabActive : ''}`}
+                  onClick={() => setActiveTab('bookings')}
+                >
+                  История
+                  <span className={styles.tabBadge}>{bookings.length}</span>
+                </button>
+                <button
+                  className={`${styles.tab} ${activeTab === 'orders' ? styles.tabActive : ''}`}
+                  onClick={() => setActiveTab('orders')}
+                >
+                  Заказы
+                  <span className={styles.tabBadge}>{orders.length}</span>
+                </button>
+              </div>
+              {tabsHasScroll && <div className={styles.tabsScrollIndicator} />}
             </div>
 
             <div className={styles.tabContent}>
