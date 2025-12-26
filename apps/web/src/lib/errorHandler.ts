@@ -1,17 +1,28 @@
-import { AxiosError } from 'axios';
-
 export interface ApiError {
   message: string;
   statusCode?: number;
   field?: string;
 }
 
+interface ErrorWithResponse {
+  response?: {
+    data?: any;
+    status?: number;
+  };
+  code?: string;
+  config?: {
+    url?: string;
+  };
+}
+
 /**
- * Извлекает понятное сообщение об ошибке из ответа API
+ * Извлекает понятное сообщение об ошибке от ответа API
  */
 export function getErrorMessage(error: unknown): string {
-  if (error instanceof AxiosError) {
-    const apiError = error.response?.data;
+  const err = error as ErrorWithResponse;
+
+  if (err.response) {
+    const apiError = err.response.data;
 
     // Проверяем структуру ошибки от NestJS
     if (apiError) {
@@ -32,7 +43,7 @@ export function getErrorMessage(error: unknown): string {
     }
 
     // HTTP статус коды
-    switch (error.response?.status) {
+    switch (err.response?.status) {
       case 400:
         return 'Неверные данные запроса';
       case 401:
@@ -54,11 +65,11 @@ export function getErrorMessage(error: unknown): string {
     }
 
     // Ошибки сети
-    if (error.code === 'ERR_NETWORK') {
+    if (err.code === 'ERR_NETWORK') {
       return 'Ошибка соединения с сервером';
     }
 
-    if (error.code === 'ECONNABORTED') {
+    if (err.code === 'ECONNABORTED') {
       return 'Время ожидания истекло';
     }
   }
@@ -75,8 +86,10 @@ export function getErrorMessage(error: unknown): string {
  * Определяет тип ошибки для отображения соответствующего toast
  */
 export function getErrorType(error: unknown): 'error' | 'warning' {
-  if (error instanceof AxiosError) {
-    const status = error.response?.status;
+  const err = error as ErrorWithResponse;
+
+  if (err.response) {
+    const status = err.response.status;
 
     // Предупреждения для клиентских ошибок
     if (status && status >= 400 && status < 500) {
@@ -91,8 +104,10 @@ export function getErrorType(error: unknown): 'error' | 'warning' {
  * Форматирует ошибку для логирования
  */
 export function formatErrorForLog(error: unknown): string {
-  if (error instanceof AxiosError) {
-    return `API Error: ${error.response?.status || 'Unknown'} - ${error.config?.url} - ${getErrorMessage(error)}`;
+  const err = error as ErrorWithResponse;
+
+  if (err.response) {
+    return `API Error: ${err.response.status || 'Unknown'} - ${err.config?.url || 'N/A'} - ${getErrorMessage(error)}`;
   }
 
   if (error instanceof Error) {
