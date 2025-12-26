@@ -6,6 +6,20 @@ import { ToastContainer } from '../components/ui/ToastContainer';
 export const metadata: Metadata = {
   title: 'На заре - Творческое пространство',
   description: 'Творческое пространство для мастер-классов и направлений',
+  icons: {
+    icon: '/icon.svg',
+    apple: '/apple-icon.svg',
+  },
+  manifest: '/manifest.json',
+  metadataBase: new URL('https://nazare.ru'),
+  openGraph: {
+    title: 'На заре - Творческое пространство',
+    description: 'Творческое пространство для мастер-классов и направлений',
+    url: 'https://nazare.ru',
+    siteName: 'На заре',
+    locale: 'ru_RU',
+    type: 'website',
+  },
 };
 
 export const viewport: Viewport = {

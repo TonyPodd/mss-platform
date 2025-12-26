@@ -604,6 +604,11 @@ export class EmailService {
       previousBalance: number;
     },
   ): Promise<void> {
+    // Правильное округление для избежания floating point ошибок
+    const formatBalance = (value: number): string => {
+      return (Math.round(value * 100) / 100).toFixed(2);
+    };
+
     const mailOptions = {
       from: process.env.SMTP_FROM || '"На заре" <noreply@mss-studio.ru>',
       to,
@@ -653,7 +658,7 @@ export class EmailService {
                               <span style="color: #5a4a42; font-size: 15px;">Сумма пополнения:</span>
                             </td>
                             <td style="padding: 12px 0; border-bottom: 1px solid rgba(39, 174, 96, 0.15); text-align: right;">
-                              <strong style="color: #27ae60; font-size: 20px;">+${topUpData.amount.toFixed(2)} ₽</strong>
+                              <strong style="color: #27ae60; font-size: 20px;">+${formatBalance(topUpData.amount)} ₽</strong>
                             </td>
                           </tr>
                           <tr>
@@ -661,7 +666,7 @@ export class EmailService {
                               <span style="color: #5a4a42; font-size: 15px;">Предыдущий баланс:</span>
                             </td>
                             <td style="padding: 12px 0; border-bottom: 1px solid rgba(39, 174, 96, 0.15); text-align: right;">
-                              <span style="color: #8b7b70; font-size: 16px;">${topUpData.previousBalance.toFixed(2)} ₽</span>
+                              <span style="color: #8b7b70; font-size: 16px;">${formatBalance(topUpData.previousBalance)} ₽</span>
                             </td>
                           </tr>
                           <tr>
@@ -669,7 +674,7 @@ export class EmailService {
                               <span style="color: #2d3748; font-size: 16px; font-weight: 600;">Новый баланс:</span>
                             </td>
                             <td style="padding: 12px 0; text-align: right;">
-                              <strong style="color: #27ae60; font-size: 22px;">${topUpData.newBalance.toFixed(2)} ₽</strong>
+                              <strong style="color: #27ae60; font-size: 22px;">${formatBalance(topUpData.newBalance)} ₽</strong>
                             </td>
                           </tr>
                         </table>
@@ -677,7 +682,7 @@ export class EmailService {
 
                       <!-- CTA Button -->
                       <div style="text-align: center; margin: 30px 0;">
-                        <a href="${process.env.FRONTEND_URL || 'https://xn----7sbbaac0crtcfcfgf8bf6ab.xn--p1ai'}/profile"
+                        <a href="${process.env.FRONTEND_URL || 'https://nazare.ru'}/profile"
                            style="display: inline-block; background: linear-gradient(135deg, #feb297 0%, #f09674 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(254, 178, 151, 0.3);">
                           Перейти в профиль
                         </a>
