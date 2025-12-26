@@ -466,16 +466,13 @@ export class UsersService {
       const updatedSubscription = await this.prisma.subscription.update({
         where: { id: activeSubscription.id },
         data: {
+          // Увеличиваем оба значения, чтобы формула "использовано = totalBalance - remainingBalance" работала
           totalBalance: {
             increment: amount,
           },
           remainingBalance: {
             increment: amount,
           },
-          // Обновляем название
-          name: activeSubscription.name.includes('Объединённый')
-            ? activeSubscription.name
-            : 'Объединённый абонемент',
           // Если абонемент был исчерпан, возвращаем статус ACTIVE
           status: 'ACTIVE',
         },
