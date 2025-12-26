@@ -677,7 +677,7 @@ export class EmailService {
 
                       <!-- CTA Button -->
                       <div style="text-align: center; margin: 30px 0;">
-                        <a href="${process.env.FRONTEND_URL || 'https://на-заре.рф'}/profile"
+                        <a href="${process.env.FRONTEND_URL || 'https://xn----7sbbaac0crtcfcfgf8bf6ab.xn--p1ai'}/profile"
                            style="display: inline-block; background: linear-gradient(135deg, #feb297 0%, #f09674 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(254, 178, 151, 0.3);">
                           Перейти в профиль
                         </a>
