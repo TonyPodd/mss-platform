@@ -4,11 +4,15 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { EmailService } from '../email/email.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService,
+  ) {}
 
   async getProfile(userId: string) {
     const user = await this.prisma.user.findUnique({
@@ -455,6 +459,8 @@ export class UsersService {
       },
     });
 
+    const previousBalance = activeSubscription?.remainingBalance || 0;
+
     // Если есть активный абонемент, пополняем его
     if (activeSubscription) {
       const updatedSubscription = await this.prisma.subscription.update({
@@ -474,6 +480,20 @@ export class UsersService {
           status: 'ACTIVE',
         },
       });
+
+      // Отправить email уведомление
+      await this.emailService.sendBalanceTopUpEmail(
+        user.email,
+        {
+          firstName: user.firstName,
+          lastName: user.lastName,
+        },
+        {
+          amount,
+          newBalance: updatedSubscription.remainingBalance,
+          previousBalance,
+        },
+      );
 
       return updatedSubscription;
     }
@@ -496,6 +516,20 @@ export class UsersService {
         expiresAt: null,
       },
     });
+
+    // Отправить email уведомление
+    await this.emailService.sendBalanceTopUpEmail(
+      user.email,
+      {
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+      {
+        amount,
+        newBalance: subscription.remainingBalance,
+        previousBalance: 0,
+      },
+    );
 
     return subscription;
   }
