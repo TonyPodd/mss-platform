@@ -6,11 +6,15 @@ import { useAuth } from '../../contexts/AuthContext';
 import { apiClient } from '../../lib/api';
 import { Subscription, Booking, SubscriptionType, GroupEnrollment, Order, PaymentMethod } from '@mss/shared';
 import Header from '../../components/Header';
+import { useErrorHandler } from '../../hooks/useErrorHandler';
+import { useToast } from '../../contexts/ToastContext';
 import styles from './profile.module.css';
 
 export default function ProfilePage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading, refreshUser, activeSubscription, refreshSubscription } = useAuth();
+  const { handleError } = useErrorHandler();
+  const { addToast } = useToast();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([]);
@@ -74,7 +78,7 @@ export default function ProfilePage() {
       setEnrollments(myEnrollments);
       setOrders(myOrders);
     } catch (error) {
-      console.error('Ошибка при загрузке данных:', error);
+      handleError(error, 'Ошибка при загрузке данных профиля');
     } finally {
       setLoading(false);
     }
@@ -121,10 +125,9 @@ export default function ProfilePage() {
       });
       await refreshUser();
       setIsEditing(false);
-      alert('Профиль успешно обновлен');
+      addToast('Профиль успешно обновлен', 'success');
     } catch (error) {
-      console.error('Ошибка при сохранении:', error);
-      alert('Не удалось обновить профиль');
+      handleError(error, 'Не удалось обновить профиль');
     } finally {
       setSaving(false);
     }
