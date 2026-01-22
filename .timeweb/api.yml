@@ -1,0 +1,30 @@
+# Конфигурация для API сервиса
+name: mss-api
+type: web
+
+build:
+  # Устанавливаем зависимости всего монорепо
+  installCommand: pnpm install
+  # Генерируем Prisma Client и собираем API
+  buildCommand: |
+    cd services/api
+    pnpm exec npx prisma generate
+    pnpm build
+
+run:
+  # Запускаем миграции перед стартом
+  preStartCommand: cd services/api && pnpm exec npx prisma migrate deploy
+  # Запускаем API
+  startCommand: cd services/api && node dist/main.js
+
+env:
+  NODE_ENV: production
+  PORT: 3000
+
+health:
+  path: /health
+
+resources:
+  # Минимальные ресурсы для старта
+  cpu: 0.5
+  memory: 512Mi

@@ -1,0 +1,172 @@
+.container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  gap: 2rem;
+}
+
+.header h1 {
+  margin: 0 0 0.5rem 0;
+  color: #2c2416;
+  font-size: 2rem;
+}
+
+.subtitle {
+  color: #6b5b52;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.addButton {
+  padding: 0.75rem 1.5rem;
+  background: #8b7355;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.addButton:hover {
+  background: #6b5b52;
+}
+
+.tableWrapper {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: #f5f1ed;
+}
+
+.table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #2c2416;
+  border-bottom: 2px solid #e8dfd5;
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f5f1ed;
+}
+
+.table tbody tr:hover {
+  background: #faf8f6;
+}
+
+.typeInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.description {
+  color: #6b5b52;
+  font-size: 0.875rem;
+}
+
+.discount {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.badgeActive {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badgeInactive {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d4c4b0;
+  background: white;
+  color: #6b5b52;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.button:hover {
+  background: #f5f1ed;
+  border-color: #8b7355;
+}
+
+.buttonToggle {
+  border-color: #ffc107;
+  color: #f57c00;
+}
+
+.buttonToggle:hover {
+  background: #fff8e1;
+  border-color: #f57c00;
+}
+
+.buttonDelete {
+  border-color: #ef5350;
+  color: #c62828;
+}
+
+.buttonDelete:hover {
+  background: #ffebee;
+  border-color: #c62828;
+}
+
+.empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #6b5b52;
+}
+
+.empty p {
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  font-size: 1.1rem;
+  color: #6b5b52;
+}

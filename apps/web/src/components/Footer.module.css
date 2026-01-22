@@ -1,0 +1,159 @@
+.footer {
+  background: linear-gradient(180deg, #342822 0%, #2a1f1a 100%);
+  color: #e8ddd1;
+  margin-top: 4rem;
+  border-top: 1px solid rgba(139, 115, 85, 0.12);
+}
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+/* Левая зона - бренд */
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.brandName {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #f5ede3;
+  letter-spacing: 0.01em;
+}
+
+.brandDesc {
+  font-size: 0.8125rem;
+  color: #b8a595;
+  font-weight: 400;
+}
+
+/* Центр - контакты */
+.contacts {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.contactLink {
+  color: #e8ddd1;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid transparent;
+}
+
+.contactLink:hover {
+  color: #feb297;
+  border-bottom-color: #feb297;
+}
+
+.separator {
+  color: #6b5b52;
+  user-select: none;
+}
+
+/* Правая зона - мета */
+.meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.social {
+  display: flex;
+  gap: 1.125rem;
+}
+
+.social a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b8a595;
+  transition: all 0.2s ease;
+}
+
+.social a:hover {
+  color: #feb297;
+  transform: translateY(-2px);
+}
+
+.legal {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: #8b7b70;
+}
+
+.legal a {
+  color: #8b7b70;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.legal a:hover {
+  color: #feb297;
+  text-decoration: underline;
+}
+
+.legal span {
+  user-select: none;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .container {
+    flex-wrap: wrap;
+    padding: 1.25rem 2rem;
+  }
+
+  .brand {
+    width: 100%;
+  }
+
+  .contacts {
+    width: 100%;
+    justify-content: flex-start;
+    order: 3;
+  }
+
+  .meta {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .brandDesc {
+    display: none;
+  }
+
+  .container {
+    padding: 1.25rem 1.5rem;
+    gap: 1rem;
+  }
+
+  .contacts {
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+  }
+
+  .legal {
+    font-size: 0.6875rem;
+  }
+}

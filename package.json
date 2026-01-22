@@ -1,0 +1,30 @@
+{
+  "name": "mss-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Master Class Booking Platform - Monorepo",
+  "scripts": {
+    "build:packages": "pnpm --filter @mss/shared build && pnpm --filter @mss/api-client build",
+    "dev:web": "pnpm build:packages && pnpm --filter web dev",
+    "dev:admin": "pnpm build:packages && pnpm --filter admin dev",
+    "dev:mobile": "pnpm --filter mobile start",
+    "dev:api": "pnpm --filter api start:dev",
+    "build:web": "pnpm build:packages && pnpm --filter web build",
+    "build:admin": "pnpm build:packages && pnpm --filter admin build",
+    "build:api": "pnpm --filter api build",
+    "build:mobile": "pnpm --filter mobile build",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "type-check": "pnpm -r type-check"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3"
+  }
+}

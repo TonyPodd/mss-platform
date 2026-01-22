@@ -1,0 +1,18 @@
+{
+  "name": "На заре - Творческое пространство",
+  "short_name": "На заре",
+  "description": "Творческое пространство для мастер-классов и направлений",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF8F6",
+  "theme_color": "#E0AFA0",
+  "orientation": "portrait",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

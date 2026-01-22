@@ -1,0 +1,111 @@
+.main {
+  min-height: calc(100vh - 200px);
+}
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.hero {
+  text-align: center;
+  padding: 3.5rem 2rem;
+  background: linear-gradient(135deg, #fef8f3 0%, #f7ebe1 100%);
+  margin: 0 -1.5rem 3rem;
+  border-radius: 0 0 24px 24px;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(139, 115, 85, 0.15);
+}
+
+.heroContent {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #5a4a42;
+}
+
+.hero p {
+  font-size: 1.15rem;
+  color: #8b7355;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.heroButtons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.heroPrimary,
+.heroSecondary {
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 1.05rem;
+}
+
+.heroPrimary {
+  background: #8b7355;
+  color: white;
+  box-shadow: 0 4px 12px rgba(139, 115, 85, 0.2);
+}
+
+.heroPrimary:hover {
+  background: #a08060;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(139, 115, 85, 0.3);
+}
+
+.heroSecondary {
+  background: white;
+  color: #5a4a42;
+  border: 2px solid rgba(139, 115, 85, 0.25);
+}
+
+.heroSecondary:hover {
+  background: rgba(139, 115, 85, 0.06);
+  border-color: #a08060;
+  transform: translateY(-2px);
+  color: #8b7355;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .hero h1 {
+    font-size: 1.875rem;
+  }
+
+  .hero p {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .heroButtons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .heroPrimary,
+  .heroSecondary {
+    width: 100%;
+    text-align: center;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+  }
+}

@@ -1,0 +1,441 @@
+.page {
+  max-width: 1400px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  color: #1a202c;
+}
+
+.addButton {
+  padding: 0.75rem 1.5rem;
+  background: #4CAF50;
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.addButton:hover {
+  background: #45a049;
+}
+
+.table {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: #f7fafc;
+}
+
+.table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table td {
+  padding: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge.MASTER_CLASS {
+  background: #c6f6d5;
+  color: #276749;
+}
+
+.badge.REGULAR_GROUP {
+  background: #bee3f8;
+  color: #2c5282;
+}
+
+.badge.ONE_TIME_EVENT {
+  background: #fed7d7;
+  color: #9b2c2c;
+}
+
+.status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status.PUBLISHED {
+  background: #c6f6d5;
+  color: #276749;
+}
+
+.status.DRAFT {
+  background: #feebc8;
+  color: #7c2d12;
+}
+
+.status.CANCELLED {
+  background: #fed7d7;
+  color: #9b2c2c;
+}
+
+.status.COMPLETED {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.publishBtn,
+.editBtn,
+.deleteBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.publishBtn {
+  background: #4CAF50;
+  color: #fff;
+}
+
+.publishBtn:hover {
+  background: #45a049;
+}
+
+.editBtn {
+  background: #3182ce;
+  color: #fff;
+  display: inline-block;
+}
+
+.editBtn:hover {
+  background: #2c5282;
+}
+
+.deleteBtn {
+  background: #e53e3e;
+  color: #fff;
+}
+
+.deleteBtn:hover {
+  background: #c53030;
+}
+
+.empty {
+  padding: 3rem;
+  text-align: center;
+  color: #718096;
+}
+
+.loading {
+  padding: 3rem;
+  text-align: center;
+  font-size: 1.25rem;
+  color: #718096;
+}
+
+.viewBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+  background: #805ad5;
+  color: #fff;
+}
+
+.viewBtn:hover {
+  background: #6b46c1;
+}
+
+/* Modal styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 16px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1a202c;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #718096;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.closeButton:hover {
+  background: #f7fafc;
+  color: #1a202c;
+}
+
+.modalBody {
+  padding: 2rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modalLoading,
+.modalEmpty {
+  padding: 3rem;
+  text-align: center;
+  color: #718096;
+}
+
+.bookingsStats {
+  background: #f7fafc;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.bookingsStats p {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: #4a5568;
+  font-weight: 600;
+}
+
+.bookingsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bookingCard {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.2s;
+}
+
+.bookingCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e0;
+}
+
+.bookingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.bookingNumber {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #805ad5;
+}
+
+.bookingStatus {
+  padding: 0.375rem 0.875rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.bookingStatus.PENDING {
+  background: #feebc8;
+  color: #7c2d12;
+}
+
+.bookingStatus.CONFIRMED {
+  background: #c6f6d5;
+  color: #276749;
+}
+
+.bookingStatus.CANCELLED {
+  background: #fed7d7;
+  color: #9b2c2c;
+}
+
+.bookingStatus.ATTENDED {
+  background: #bee3f8;
+  color: #2c5282;
+}
+
+.bookingInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.bookingInfo p {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: #4a5568;
+}
+
+.bookingInfo strong {
+  color: #1a202c;
+  font-weight: 600;
+}
+
+.participants {
+  background: #f7fafc;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.participants strong {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: #1a202c;
+  font-size: 0.9375rem;
+}
+
+.participant {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.875rem;
+  color: #4a5568;
+}
+
+.participant:last-child {
+  border-bottom: none;
+}
+
+.participant span:first-child {
+  font-weight: 600;
+  color: #1a202c;
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .table {
+    overflow-x: auto;
+  }
+
+  .table table {
+    min-width: 800px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .publishBtn,
+  .editBtn,
+  .deleteBtn,
+  .viewBtn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .modal {
+    padding: 1rem;
+  }
+
+  .modalContent {
+    max-height: 95vh;
+  }
+
+  .modalHeader {
+    padding: 1rem;
+  }
+
+  .modalBody {
+    padding: 1rem;
+  }
+
+  .bookingsStats {
+    grid-template-columns: 1fr;
+  }
+
+  .participant {
+    flex-wrap: wrap;
+  }
+}

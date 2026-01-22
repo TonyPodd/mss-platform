@@ -1,0 +1,20 @@
+# Конфигурация для Web фронтенда
+name: mss-web
+type: web
+
+build:
+  installCommand: pnpm install
+  buildCommand: |
+    cd apps/web
+    pnpm build
+
+run:
+  startCommand: cd apps/web && pnpm start
+
+env:
+  NODE_ENV: production
+  PORT: 3000
+
+resources:
+  cpu: 0.5
+  memory: 512Mi

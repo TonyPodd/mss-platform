@@ -1,0 +1,160 @@
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  background: #1a1d29;
+  color: #fff;
+  position: fixed;
+  left: 0;
+  top: 0;
+  padding: 1.5rem 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  padding: 0 1.5rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1rem;
+}
+
+.logo h2 {
+  font-size: 1.5rem;
+  color: #4CAF50;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0 0.75rem;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  color: #b8bcc8;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.navItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.navItem.active {
+  background: #4CAF50;
+  color: #fff;
+}
+
+.icon {
+  font-size: 1.25rem;
+}
+
+.logoutSection {
+  margin-top: auto;
+  padding: 1rem 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logoutButton {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  color: #b8bcc8;
+  background: none;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1rem;
+  text-align: left;
+}
+
+.logoutButton:hover {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+}
+
+.burgerButton {
+  display: none;
+}
+
+.overlay {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .burgerButton {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 40px;
+    height: 40px;
+    background: #1a1d29;
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1001;
+    cursor: pointer;
+  }
+
+  .burgerButton span {
+    width: 100%;
+    height: 3px;
+    background: #fff;
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+
+  .overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+
+  .nav {
+    flex-direction: column;
+    padding: 0 0.75rem;
+  }
+
+  .navItem {
+    flex-direction: row;
+    gap: 0.75rem;
+    font-size: 1rem;
+  }
+
+  .logoutSection {
+    padding: 1rem 0.75rem;
+  }
+
+  .logoutButton {
+    flex-direction: row;
+    gap: 0.75rem;
+    font-size: 1rem;
+  }
+}
